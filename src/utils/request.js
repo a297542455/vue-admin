@@ -25,7 +25,8 @@ service.interceptors.request.use(
 
     if (store.getters.token) {
       // token
-      config.headers['x-access-token'] = getToken()
+      config.headers['token'] = getToken()
+      config.headers['x-access-token'] = '45FD3FFB255C79003D22EDB296617DF8MDAwMDAwMDAwML6Mna-FqrqSib2cgMOHoIC7o36CkY6xfLjQzqGGZIXVuGadr4u5um-LunZ_w4efabGmjmWDo3-gu5SsqIhkp6vHZJ3Ynau-moXTqGG4nZSnyX-ohIONk4a7qbtoiJ6Ju7GJZqmKt7aHj6pxpcSHlKnGaaR8fn9_gMiT3n-AiqPTtp-g2I-nvrOSraBguIh9ZL9_nHSDjYupyc-7a4t3r82-Zmapkdqhdg'
     }
     if (config.method === 'post') {
       config.data = getSignature(config.data)
@@ -53,7 +54,7 @@ service.interceptors.response.use(
    */
   response => {
     const res = response.data
-    if (res.code !== 20000) {
+    if (res.code !== 20000 && res.code !== 10000) {
       Message({
         message: res.msg,
         type: 'error',

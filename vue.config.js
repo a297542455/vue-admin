@@ -28,6 +28,13 @@ module.exports = {
   // 这里写你调用接口的基础路径，来解决跨域，如果设置了代理，那你本地开发环境的axios的baseUrl要写为 '' ，即空字符串
   devServer: {
     proxy: {
+      '/admin': {
+        target: 'http://api.hardphp.com/index.php/admin', // 设置你调用的接口域名和端口号 别忘了加http
+        changeOrigin: true,
+        pathRewrite: {
+          '^/admin': ''
+        }
+      },
       '/': {
         target: BASE_URL, // 设置你调用的接口域名和端口号 别忘了加http
         changeOrigin: true,

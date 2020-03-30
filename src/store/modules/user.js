@@ -51,8 +51,8 @@ const user = {
       return new Promise((resolve, reject) => {
         loginByUsername(username, userInfo.password).then(response => {
           const data = response.data
-          commit('SET_TOKEN', data.userToken)
-          setToken(response.data.userToken)
+          commit('SET_TOKEN', data.token)
+          setToken(response.data.token)
           resolve()
         }).catch(error => {
           reject(error)
@@ -69,8 +69,8 @@ const user = {
           }
           const data = response.data
 
-          if (data.access && data.groupId > 0) {
-            commit('SET_ROLES', data.groupId)
+          if (data.access && data.groupName) {
+            commit('SET_ROLES', 1)
           } else {
             reject('拉取用户权限失败')
           }

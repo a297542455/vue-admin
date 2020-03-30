@@ -14,7 +14,7 @@ export function loginByUsername(username, password) {
 
 export function getUserInfo() {
   return request({
-    url: '/user/getuser',
+    url: '/user/getLonginUser',
     method: 'get'
   })
 }
