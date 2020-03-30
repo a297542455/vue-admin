@@ -69,7 +69,7 @@ const user = {
           }
           const data = response.data
 
-          if (data.access && data.groupName) {
+          if (data.access && data.groupId) {
             commit('SET_ROLES', 1)
           } else {
             reject('拉取用户权限失败')
