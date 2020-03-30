@@ -7,7 +7,7 @@ const resolve = dir => {
 // 项目部署目录，相对于根目录
 const BASE_URL = process.env.NODE_ENV === 'production'
   ? ''
-  : 'http://api.hardphp.com/index.php'
+  : 'http://wiki.geehealth.cn:8080'
 
 // 项目部署目录，相对于根目录
 const WWW_ROOT = process.env.NODE_ENV === 'production'

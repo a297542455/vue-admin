@@ -53,7 +53,7 @@ service.interceptors.response.use(
    */
   response => {
     const res = response.data
-    if (res.code !== 10000) {
+    if (res.code !== 20000) {
       Message({
         message: res.msg,
         type: 'error',
@@ -75,6 +75,7 @@ service.interceptors.response.use(
       }
       return Promise.reject('error')
     } else {
+      // 成功回调
       return response.data
     }
   },

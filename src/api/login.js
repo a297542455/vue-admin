@@ -2,20 +2,20 @@ import request from '@/utils/request'
 
 export function loginByUsername(username, password) {
   const data = {
-    userName: username,
+    username: username,
     password: password
   }
   return request({
-    url: '/admin/login/index',
+    url: '/login/doLogin',
     method: 'post',
-    data
+    params: data
   })
 }
 
 export function getUserInfo() {
   return request({
-    url: '/admin/admin/getuser',
-    method: 'post'
+    url: '/user/getuser',
+    method: 'get'
   })
 }
 
