@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+  <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" :close-on-click-modal="false">
     <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 100%; height: 50vh;overflow-y: scroll;">
       <el-form-item label="角色" prop="groupId">
         <el-select v-model="temp.groupId" class="filter-item" placeholder="请选择">
@@ -9,12 +9,12 @@
       <el-form-item label="账号" prop="userName">
         <el-input v-model="temp.userName" clearable/>
       </el-form-item>
-      <el-form-item label="密码" prop="password">
+      <!-- <el-form-item label="密码" prop="password">
         <el-input v-model="temp.password" clearable/>
-      </el-form-item>
-      <el-form-item label="头像" prop="img">
+      </el-form-item> -->
+      <!-- <el-form-item label="头像" prop="img">
         <Upload v-model="temp.img" :config="config"/>
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item label="姓名" prop="realName">
         <el-input v-model="temp.realName" clearable/>
       </el-form-item>
@@ -71,13 +71,13 @@ export default {
         id: 0,
         groupId: '',
         userName: '',
-        password: '',
+        // password: '',
         realName: '',
         isEnabled: 1,
         phone: '',
         email: '',
         regTime: getNowTime(),
-        img: []
+        // img: []
       },
       config: {
         fileName: 'img',
@@ -93,10 +93,10 @@ export default {
         create: '添加'
       },
       rules: {
-        groupId: [{ required: true, message: '角色必选', trigger: 'change' }],
+        // groupId: [{ required: true, message: '角色必选', trigger: 'change' }],
         userName: [{ required: true, message: '账号必填', trigger: 'blur' }],
-        phone: [{ validator: checkPhone, message: '手机号格式错误', trigger: 'blur' }],
-        email: [{ validator: checkEmail, message: '邮箱格式错误', trigger: 'blur' }]
+        // phone: [{ validator: checkPhone, message: '手机号格式错误', trigger: 'blur' }],
+        // email: [{ validator: checkEmail, message: '邮箱格式错误', trigger: 'blur' }]
       }
 
     }
@@ -125,16 +125,16 @@ export default {
     },
     resetTemp() {
       this.temp = {
-        id: 0,
+        id: '',
         groupId: '',
         userName: '',
-        password: '',
+        // password: '',
         realName: '',
         isEnabled: 1,
         phone: '',
         email: '',
         regTime: getNowTime(),
-        img: []
+        // img: []
       }
     },
     handleCreate() {
@@ -158,8 +158,8 @@ export default {
           _this.temp.isEnabled = response.data.isEnabled
           _this.temp.phone = response.data.phone
           _this.temp.email = response.data.email
-          _this.temp.password = ''
-          _this.temp.img = formatImgToArr(response.data.img)
+          // _this.temp.password = ''
+          // _this.temp.img = formatImgToArr(response.data.img)
         }
       })
       this.$nextTick(() => {
@@ -170,18 +170,19 @@ export default {
       this.btnLoading = true
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
+          console.log(this.temp)
           const _this = this
           const d = this.temp
           if (typeof (d.img) === 'object') {
             d.img = d.img.join(',')
           }
-          save(d).then(response => {
+          save({ ...d }).then(response => {
             if (response.status === 1) {
-              if (!d.id) {
-                d.id = response.data.id
-              }
+              // if (!d.id) {
+              //   d.id = response.data.id
+              // }
               // todo
-              this.$emit('updateRow', d)
+              this.$emit('updateRow', { ...d })
               _this.dialogFormVisible = false
               _this.$message.success(response.msg)
             } else {

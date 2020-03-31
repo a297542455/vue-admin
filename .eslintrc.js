@@ -37,7 +37,7 @@ module.exports = {
     'camelcase': [0, {
       'properties': 'always'
     }],
-    'comma-dangle': [2, 'never'],
+    'comma-dangle': [2, 'only-multiline'],
     'comma-spacing': [2, {
       'before': false,
       'after': true
@@ -52,7 +52,7 @@ module.exports = {
       'before': true,
       'after': true
     }],
-    'handle-callback-err': [2, '^(err|error)$'],
+    'handle-callback-err': [0, '^(err|error)$'],
     'indent': [2, 2, {
       'SwitchCase': 1
     }],
@@ -142,8 +142,8 @@ module.exports = {
     }],
     'no-unreachable': 2,
     'no-unsafe-finally': 2,
-    'no-unused-vars': [2, {
-      'vars': 'all',
+    'no-unused-vars': [0, {
+      'vars': 'local',
       'args': 'none'
     }],
     'no-useless-call': 2,

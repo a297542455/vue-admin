@@ -26,7 +26,7 @@ service.interceptors.request.use(
     if (store.getters.token) {
       // token
       config.headers['token'] = getToken()
-      config.headers['x-access-token'] = '45FD3FFB255C79003D22EDB296617DF8MDAwMDAwMDAwML6Mna-FqrqSib2cgMOHoIC7o36CkY6xfLjQzqGGZIXVuGadr4u5um-LunZ_w4efabGmjmWDo3-gu5SsqIhkp6vHZJ3Ynau-moXTqGG4nZSnyX-ohIONk4a7qbtoiJ6Ju7GJZqmKt7aHj6pxpcSHlKnGaaR8fn9_gMiT3n-AiqPTtp-g2I-nvrOSraBguIh9ZL9_nHSDjYupyc-7a4t3r82-Zmapkdqhdg'
+      config.headers['x-access-token'] = 'C3CE2A321EE42C30B04CF15604A1C569MDAwMDAwMDAwML6Mna-FqrqSib2cgMOHoIC7o36CkY6xfLjQzqGGZIXVuGadr4u5um-LunZ_w4efabGmjmWDo3-gu5SsqIhkp6vHZJ3Ynau-moXTqGG4nZSnyX-ohIONk4a7qbtoiJ6Ju7GJZpqLt6aHheBxpbadimi4fYJ6lY-De7yqs2mGiInZu6B_sZLdyKyGqop5toiYh7yjoH1-jm1pv6vSjoGcfbG7eJ25j7Shdg'
     }
     if (config.method === 'post') {
       config.data = getSignature(config.data)
@@ -62,17 +62,17 @@ service.interceptors.response.use(
       })
       // token 过期了
       if (res.code === 10305 || res.code === 10307) {
-        MessageBox.confirm('你已被登出，可以取消继续留在该页面，或者重新登录', '确定登出', {
-          confirmButtonText: '重新登录',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          store.dispatch('FedLogOut').then(() => {
-            // 清空token
-            removeToken()
-            location.reload() // 为了重新实例化vue-router对象 避免bug
-          })
-        })
+        // MessageBox.confirm('你已被登出，可以取消继续留在该页面，或者重新登录', '确定登出', {
+        //   confirmButtonText: '重新登录',
+        //   cancelButtonText: '取消',
+        //   type: 'warning'
+        // }).then(() => {
+        //   store.dispatch('FedLogOut').then(() => {
+        //     // 清空token
+        //     removeToken()
+        //     location.reload() // 为了重新实例化vue-router对象 避免bug
+        //   })
+        // })
       }
       return Promise.reject('error')
     } else {

@@ -1,8 +1,9 @@
 import request from '@/utils/request'
+import qs from 'qs'
 
 export function getList(query) {
   return request({
-    url: '/admin/admin/index',
+    url: '/user/getPlist',
     method: 'post',
     data: query
   })
@@ -10,7 +11,7 @@ export function getList(query) {
 
 export function getinfo(id) {
   return request({
-    url: '/admin/admin/getinfo',
+    url: '/user/getInfo',
     method: 'get',
     params: { id }
   })
@@ -18,23 +19,23 @@ export function getinfo(id) {
 
 export function modify(data) {
   return request({
-    url: '/admin/admin/modify',
+    url: '/user/modify',
     method: 'post',
-    data
+    data: qs.stringify(data)
   })
 }
 
 export function save(data) {
   return request({
-    url: '/admin/admin/save',
+    url: '/user/save',
     method: 'post',
-    data
+    params: data
   })
 }
 
 export function del(id) {
   return request({
-    url: '/admin/admin/del',
+    url: '/user/del',
     method: 'get',
     params: { id }
   })
