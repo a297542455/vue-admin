@@ -71,47 +71,47 @@
       style="width: 100%;"
       @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55"/>
-      <el-table-column label="ID" align="center" width="65" fixed>
+      <!-- <el-table-column label="ID" align="center" width="65" fixed>
         <template slot-scope="scope">
           <span>{{ scope.row.id }}</span>
         </template>
-      </el-table-column>
-      <el-table-column label="头像" width="60px" fixed>
+      </el-table-column> -->
+      <!-- <el-table-column label="头像" width="60px" fixed>
         <template slot-scope="scope">
           <span class="link-type" @click="handleImg(scope.row.img)"><img :src="scope.row.img" width="40" height="40"></span>
         </template>
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column label="用户名" min-width="100px" fixed>
         <template slot-scope="scope">
           <span class="link-type" @click="handleUpdate(scope.$index,scope.row.id)">{{ scope.row.userName }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="手机" width="110px" align="center">
+      <el-table-column label="手机" width="200px" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.phone }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="邮箱" width="150px" align="center">
+      <el-table-column label="邮箱" width="200px" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.email }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="姓名" width="110px" align="center">
+      <el-table-column label="姓名" width="200px" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.realName }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="分组" width="110px" align="center">
+      <!-- <el-table-column label="分组" width="200px" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.title }}</span>
         </template>
-      </el-table-column>
-      <el-table-column label="状态" width="110px" align="center">
+      </el-table-column> -->
+      <el-table-column label="状态" width="200px" align="center">
         <template slot-scope="scope">
           <span :class="{'el-icon-success text-green':scope.row.isEnabled == 1,'el-icon-error text-red':scope.row.isEnabled == 0}" @click="handleModifyStatus(scope.$index,scope.row.id,scope.row.isEnabled)">{{ scope.row.isEnabled | statusFilter }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="登录IP" width="120px" align="center">
+      <!-- <el-table-column label="登录IP" width="120px" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.loginIp }}</span>
         </template>
@@ -130,7 +130,7 @@
         <template slot-scope="scope">
           <span>{{ scope.row.regTime|parseTime('{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column label="操作" align="center" width="120px" class-name="small-padding fixed-width" fixed="right">
         <template slot-scope="scope">
           <el-tooltip content="编辑" placement="top">
@@ -145,7 +145,7 @@
 
     <!-- 分页 -->
     <div class="pagination-container">
-      <el-pagination v-show="total>0" :current-page="listQuery.page" :page-sizes="[10,20,30, 50]" :page-size="listQuery.psize" :total="total" background layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange" @current-change="handleCurrentChange"/>
+      <el-pagination v-show="total>0" :current-page="listQuery.page" :page-sizes="[100,20,30, 50]" :page-size="listQuery.psize" :total="total" background layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange" @current-change="handleCurrentChange"/>
     </div>
 
     <!-- 表单 -->
@@ -226,7 +226,7 @@ export default {
     handleFilterClear() {
       this.listQuery = {
         page: 1,
-        psize: 10,
+        psize: 100,
         isEnabled: '-1',
         userName: '',
         phone: '',
@@ -268,15 +268,16 @@ export default {
       this.$refs.fromAdmin.handleUpdate(id)
     },
     updateRow(temp) {
-      if (this.currentIndex >= 0 && temp.id > 0) {
-        this.list.splice(this.currentIndex, 1, temp)
-      } else {
-        if (this.list.length >= 10) {
-          this.list.pop()
-        }
-        this.list.unshift(temp)
-        this.total = this.total + 1
-      }
+      this.fetchList()
+      // if (this.currentIndex >= 0 && temp.id) {
+      //   this.list.splice(this.currentIndex, 1, temp)
+      // } else {
+      //   if (this.list.length >= 10) {
+      //     this.list.pop()
+      //   }
+      //   this.list.unshift(temp)
+      //   this.total = this.total + 1
+      // }
       this.currentIndex = -1
     },
     handleDelete(index, id) {

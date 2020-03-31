@@ -21,7 +21,7 @@ export function modify(data) {
   return request({
     url: '/user/modify',
     method: 'post',
-    data: qs.stringify(data)
+    data
   })
 }
 
@@ -29,13 +29,13 @@ export function save(data) {
   return request({
     url: '/user/save',
     method: 'post',
-    params: data
+    data
   })
 }
 
 export function del(id) {
   return request({
-    url: '/user/del',
+    url: '/user/delete',
     method: 'get',
     params: { id }
   })

@@ -4,14 +4,15 @@
       <el-form-item label="角色" prop="groupId">
         <el-select v-model="temp.groupId" class="filter-item" placeholder="请选择">
           <el-option v-for="item in roles" :key="item.id" :label="item.title" :value="item.id" />
+          <el-option :key="1" :value="1" label="管理员" />
         </el-select>
       </el-form-item>
       <el-form-item label="账号" prop="userName">
         <el-input v-model="temp.userName" clearable/>
       </el-form-item>
-      <!-- <el-form-item label="密码" prop="password">
+      <el-form-item label="密码" prop="password">
         <el-input v-model="temp.password" clearable/>
-      </el-form-item> -->
+      </el-form-item>
       <!-- <el-form-item label="头像" prop="img">
         <Upload v-model="temp.img" :config="config"/>
       </el-form-item> -->
@@ -69,9 +70,9 @@ export default {
       roles: {},
       temp: {
         id: 0,
-        groupId: '',
+        groupId: 1,
         userName: '',
-        // password: '',
+        password: '',
         realName: '',
         isEnabled: 1,
         phone: '',
@@ -126,9 +127,9 @@ export default {
     resetTemp() {
       this.temp = {
         id: '',
-        groupId: '',
+        groupId: 1,
         userName: '',
-        // password: '',
+        password: '',
         realName: '',
         isEnabled: 1,
         phone: '',
@@ -151,14 +152,19 @@ export default {
       const _this = this
       getinfo(id).then(response => {
         if (response.status === 1) {
-          _this.temp.id = response.data.id
-          _this.temp.groupId = response.data.groupId
-          _this.temp.userName = response.data.userName
-          _this.temp.realName = response.data.realName
-          _this.temp.isEnabled = response.data.isEnabled
-          _this.temp.phone = response.data.phone
-          _this.temp.email = response.data.email
+          // _this.temp.id = response.data.id
+          // _this.temp.groupId = response.data.groupId
+          // _this.temp.userName = response.data.userName
+          // _this.temp.realName = response.data.realName
+          // _this.temp.isEnabled = response.data.isEnabled
+          // _this.temp.phone = response.data.phone
+          // _this.temp.email = response.data.email
           // _this.temp.password = ''
+          this.temp = {
+            ...response.data,
+            password: '',
+            // img: formatImgToArr(response.data.img),
+          }
           // _this.temp.img = formatImgToArr(response.data.img)
         }
       })
@@ -170,19 +176,18 @@ export default {
       this.btnLoading = true
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          console.log(this.temp)
           const _this = this
           const d = this.temp
           if (typeof (d.img) === 'object') {
             d.img = d.img.join(',')
           }
-          save({ ...d }).then(response => {
+          save(d).then(response => {
             if (response.status === 1) {
               // if (!d.id) {
               //   d.id = response.data.id
               // }
               // todo
-              this.$emit('updateRow', { ...d })
+              this.$emit('updateRow', d)
               _this.dialogFormVisible = false
               _this.$message.success(response.msg)
             } else {
