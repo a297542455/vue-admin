@@ -10,14 +10,14 @@ export function getList(query) {
 
 export function getListAll() {
   return request({
-    url: '/admin/rules/getLists',
+    url: '/rules/getLists',
     method: 'post'
   })
 }
 
 export function getinfo(id) {
   return request({
-    url: '/admin/rules/getinfo',
+    url: '/rules/getInfo',
     method: 'get',
     params: { id }
   })
@@ -25,7 +25,7 @@ export function getinfo(id) {
 
 export function save(data) {
   return request({
-    url: '/admin/rules/save',
+    url: '/rules/save',
     method: 'post',
     data
   })
