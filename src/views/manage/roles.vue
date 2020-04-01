@@ -34,9 +34,9 @@
         <el-tooltip content="搜索" placement="top">
           <el-button v-waves type="primary" icon="el-icon-search" circle @click="showSearch = !showSearch"/>
         </el-tooltip>
-        <el-tooltip content="删除" placement="top">
+        <!-- <el-tooltip content="删除" placement="top">
           <el-button v-waves :loading="deleting" :disabled="buttonDisabled" type="danger" icon="el-icon-delete" circle @click="handleDeleteAll()"/>
-        </el-tooltip>
+        </el-tooltip> -->
         <el-tooltip content="更多" placement="top">
           <el-dropdown trigger="click" placement="bottom" style="margin-left: 10px;" @command="handleCommand">
             <el-button :disabled="buttonDisabled" type="Info" circle>
@@ -62,11 +62,11 @@
       style="width: 100%;"
       @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55"/>
-      <el-table-column label="ID" align="center" width="65" >
+      <!-- <el-table-column label="ID" align="center" width="65" >
         <template slot-scope="scope">
           <span>{{ scope.row.id }}</span>
         </template>
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column label="名称" min-width="100px" >
         <template slot-scope="scope">
           <span class="link-type" @click="handleUpdate(scope.$index,scope.row.id)">{{ scope.row.title }}</span>
@@ -141,8 +141,7 @@ export default {
       currentIndex: -1
     }
   },
-  watch: {
-  },
+  watch: {},
   created() {
     this.fetchList()
   },
@@ -196,15 +195,16 @@ export default {
       this.$refs.fromRoles.handleUpdate(id)
     },
     updateRow(temp) {
-      if (this.currentIndex >= 0 && temp.id > 0) {
-        this.list.splice(this.currentIndex, 1, temp)
-      } else {
-        if (this.list.length >= 10) {
-          this.list.pop()
-        }
-        this.list.push(temp)
-        this.total = this.total + 1
-      }
+      this.fetchList()
+      // if (this.currentIndex >= 0 && temp.id > 0) {
+      //   this.list.splice(this.currentIndex, 1, temp);
+      // } else {
+      //   if (this.list.length >= 10) {
+      //     this.list.pop();
+      //   }
+      //   this.list.push(temp);
+      //   this.total = this.total + 1;
+      // }
       this.currentIndex = -1
     },
     handleDelete(index, id) {
@@ -213,26 +213,30 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(() => {
-        _this.$set(_this.list[index], 'delete', true)
-        del(id).then(response => {
-          if (response.status === 1) {
-            _this.list.splice(index, 1)
-            _this.total = _this.total - 1
-            _this.$notify.success(response.msg)
-          } else {
-            _this.$notify.error(response.msg)
-          }
-          _this.$set(_this.list[index], 'delete', false)
-        }).catch((error) => {
-          _this.$set(_this.list[index], 'delete', false)
-        })
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消删除'
-        })
       })
+        .then(() => {
+          _this.$set(_this.list[index], 'delete', true)
+          del(id)
+            .then(response => {
+              if (response.status === 1) {
+                _this.list.splice(index, 1)
+                _this.total = _this.total - 1
+                _this.$notify.success(response.msg)
+              } else {
+                _this.$notify.error(response.msg)
+              }
+              _this.$set(_this.list[index], 'delete', false)
+            })
+            .catch(error => {
+              _this.$set(_this.list[index], 'delete', false)
+            })
+        })
+        .catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          })
+        })
     },
     handleDeleteAll() {
       const _this = this
@@ -241,36 +245,40 @@ export default {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
-        }).then(() => {
-          _this.deleting = true
-          const ids = getArrByKey(_this.selectedRows, 'id')
-          const idstr = ids.join(',')
-          delAll({ ids: idstr }).then(response => {
-            if (response.status === 1) {
-              const delindex = []
-              _this.list.forEach(function(item, index, input) {
-                if (ids.indexOf(item.id) > -1) {
-                  delindex.push(index)
-                }
-              })
-              for (let i = delindex.length - 1; i >= 0; i--) {
-                _this.list.splice(delindex[i], 1)
-              }
-              _this.total = _this.total - delindex.length
-              _this.$message.success(response.msg)
-            } else {
-              _this.$message.error(response.msg)
-            }
-            _this.deleting = false
-          }).catch((error) => {
-            _this.deleting = false
-          })
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消删除'
-          })
         })
+          .then(() => {
+            _this.deleting = true
+            const ids = getArrByKey(_this.selectedRows, 'id')
+            const idstr = ids.join(',')
+            delAll({ ids: idstr })
+              .then(response => {
+                if (response.status === 1) {
+                  const delindex = []
+                  _this.list.forEach(function(item, index, input) {
+                    if (ids.indexOf(item.id) > -1) {
+                      delindex.push(index)
+                    }
+                  })
+                  for (let i = delindex.length - 1; i >= 0; i--) {
+                    _this.list.splice(delindex[i], 1)
+                  }
+                  _this.total = _this.total - delindex.length
+                  _this.$message.success(response.msg)
+                } else {
+                  _this.$message.error(response.msg)
+                }
+                _this.deleting = false
+              })
+              .catch(error => {
+                _this.deleting = false
+              })
+          })
+          .catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消删除'
+            })
+          })
       } else {
         _this.$message.error('请选择要删除的数据')
       }
@@ -280,19 +288,20 @@ export default {
       if (this.selectedRows.length > 0) {
         const ids = getArrByKey(this.selectedRows, 'id')
         const idstr = ids.join(',')
-        changeAll({ val: idstr, field: 'status', value: command }).then(response => {
-          if (response.status === 1) {
-            _this.list.forEach(function(item, index, input) {
-              if (ids.indexOf(item.id) > -1) {
-                _this.list[index]['status'] = command
-              }
-            })
-            _this.$message.success(response.msg)
-          } else {
-            _this.$message.error(response.msg)
-          }
-        }).catch((error) => {
-        })
+        changeAll({ val: idstr, field: 'status', value: command })
+          .then(response => {
+            if (response.status === 1) {
+              _this.list.forEach(function(item, index, input) {
+                if (ids.indexOf(item.id) > -1) {
+                  _this.list[index]['status'] = command
+                }
+              })
+              _this.$message.success(response.msg)
+            } else {
+              _this.$message.error(response.msg)
+            }
+          })
+          .catch(error => {})
       } else {
         _this.$message.error('请选择要操作的数据')
       }
@@ -301,12 +310,12 @@ export default {
 }
 </script>
 <style rel="stylesheet/scss" lang="scss">
-	.text-red{
-		color: red;
-		cursor: pointer;
-	}
-	.text-green{
-		color: green;
-		cursor: pointer;
-	}
+.text-red {
+  color: red;
+  cursor: pointer;
+}
+.text-green {
+  color: green;
+  cursor: pointer;
+}
 </style>

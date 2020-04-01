@@ -2,22 +2,22 @@ import request from '@/utils/request'
 
 export function getList(query) {
   return request({
-    url: '/admin/roles/index',
+    url: '/roles/getPlist',
     method: 'post',
     data: query
   })
 }
 
-export function getListAll() {
+export function getRolesAll() {
   return request({
-    url: '/admin/roles/getLists',
+    url: '/roles/getPlist',
     method: 'post'
   })
 }
 
 export function getinfo(id) {
   return request({
-    url: '/admin/roles/getinfo',
+    url: '/roles/getInfo',
     method: 'get',
     params: { id }
   })
@@ -25,7 +25,7 @@ export function getinfo(id) {
 
 export function save(data) {
   return request({
-    url: '/admin/roles/save',
+    url: '/roles/save',
     method: 'post',
     data
   })
@@ -33,7 +33,7 @@ export function save(data) {
 
 export function del(id) {
   return request({
-    url: '/admin/roles/del',
+    url: '/roles/delete',
     method: 'get',
     params: { id }
   })

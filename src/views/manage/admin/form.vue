@@ -4,7 +4,7 @@
       <el-form-item label="角色" prop="groupId">
         <el-select v-model="temp.groupId" class="filter-item" placeholder="请选择">
           <el-option v-for="item in roles" :key="item.id" :label="item.title" :value="item.id" />
-          <el-option :key="1" :value="1" label="管理员" />
+          <!-- <el-option :key="1" :value="1" label="管理员" /> -->
         </el-select>
       </el-form-item>
       <el-form-item label="账号" prop="userName">
@@ -41,7 +41,7 @@
 
 <script>
 import Upload from '@/components/Upload/image'
-import { getListAll } from '@/api/roles'
+import { getRolesAll } from '@/api/roles'
 import { getinfo, save } from '@/api/admin'
 import { formatImgToArr, getNowTime } from '@/utils'
 import { validatePhone, validateEmail } from '@/utils/validate'
@@ -69,15 +69,15 @@ export default {
       btnLoading: false,
       roles: {},
       temp: {
-        id: 0,
-        groupId: 1,
+        id: '123321',
+        groupId: '1',
         userName: '',
         password: '',
         realName: '',
         isEnabled: 1,
         phone: '',
         email: '',
-        regTime: getNowTime(),
+        regTime: getNowTime()
         // img: []
       },
       config: {
@@ -95,11 +95,10 @@ export default {
       },
       rules: {
         // groupId: [{ required: true, message: '角色必选', trigger: 'change' }],
-        userName: [{ required: true, message: '账号必填', trigger: 'blur' }],
+        userName: [{ required: true, message: '账号必填', trigger: 'blur' }]
         // phone: [{ validator: checkPhone, message: '手机号格式错误', trigger: 'blur' }],
         // email: [{ validator: checkEmail, message: '邮箱格式错误', trigger: 'blur' }]
       }
-
     }
   },
   watch: {
@@ -115,26 +114,25 @@ export default {
   created() {
     this.getRoles()
   },
-  destroyed() {
-
-  },
+  destroyed() {},
   methods: {
     getRoles() {
-      getListAll().then(response => {
-        this.roles = response.data
+      // 获取角色列表
+      getRolesAll().then(response => {
+        this.roles = response.data.data
       })
     },
     resetTemp() {
       this.temp = {
         id: '',
-        groupId: 1,
+        groupId: '1',
         userName: '',
         password: '',
         realName: '',
         isEnabled: 1,
         phone: '',
         email: '',
-        regTime: getNowTime(),
+        regTime: getNowTime()
         // img: []
       }
     },
@@ -162,7 +160,7 @@ export default {
           // _this.temp.password = ''
           this.temp = {
             ...response.data,
-            password: '',
+            password: ''
             // img: formatImgToArr(response.data.img),
           }
           // _this.temp.img = formatImgToArr(response.data.img)
@@ -174,29 +172,31 @@ export default {
     },
     saveData() {
       this.btnLoading = true
-      this.$refs['dataForm'].validate((valid) => {
+      this.$refs['dataForm'].validate(valid => {
         if (valid) {
           const _this = this
           const d = this.temp
-          if (typeof (d.img) === 'object') {
+          if (typeof d.img === 'object') {
             d.img = d.img.join(',')
           }
-          save(d).then(response => {
-            if (response.status === 1) {
-              // if (!d.id) {
-              //   d.id = response.data.id
-              // }
-              // todo
-              this.$emit('updateRow', d)
-              _this.dialogFormVisible = false
-              _this.$message.success(response.msg)
-            } else {
-              _this.$message.error(response.msg)
-            }
-            _this.btnLoading = false
-          }).catch((error) => {
-            this.btnLoading = false
-          })
+          save(d)
+            .then(response => {
+              if (response.status === 1) {
+                if (!d.id) {
+                  d.id = response.data.id
+                }
+                // todo
+                this.$emit('updateRow', d)
+                _this.dialogFormVisible = false
+                _this.$message.success(response.msg)
+              } else {
+                _this.$message.error(response.msg)
+              }
+              _this.btnLoading = false
+            })
+            .catch(error => {
+              this.btnLoading = false
+            })
         } else {
           this.btnLoading = false
         }

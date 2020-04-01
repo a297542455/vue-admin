@@ -63,18 +63,18 @@ export default {
   props: {
     ruleList: {
       type: Array,
-      default: []
+      default: () => []
     }
   },
   data() {
     return {
       btnLoading: false,
-      ruleTop: [{ 'id': 0, 'title': '顶级' }],
+      ruleTop: [{ id: '0', title: '顶级' }],
       pid: [],
-      props_pid: { 'label': 'title', 'value': 'id' },
+      props_pid: { label: 'title', value: 'id' },
       temp: {
-        id: 0,
-        pid: 0,
+        id: '',
+        pid: '0',
         title: '',
         name: '',
         status: 1,
@@ -116,17 +116,13 @@ export default {
       deep: true
     }
   },
-  created() {
-
-  },
-  destroyed() {
-
-  },
+  created() {},
+  destroyed() {},
   methods: {
     resetTemp() {
       this.temp = {
-        id: 0,
-        pid: 0,
+        id: '',
+        pid: '0',
         title: '',
         name: '',
         status: 1,
@@ -175,25 +171,30 @@ export default {
     },
     saveData() {
       this.btnLoading = true
-      this.$refs['dataForm'].validate((valid) => {
+      this.$refs['dataForm'].validate(valid => {
         if (valid) {
           const _this = this
           const d = this.temp
-          save(d).then(response => {
-            if (response.status === 1) {
-              if (!d.id) {
-                d.id2 = response.data.id
+          if (!d.id) {
+            this.$delete(this.temp, 'id')
+          }
+          save(d)
+            .then(response => {
+              if (response.status === 1) {
+                if (!d.id) {
+                  d.id2 = response.data.id
+                }
+                this.$emit('updateRow', d)
+                _this.dialogFormVisible = false
+                _this.$message.success(response.msg)
+              } else {
+                _this.$message.error(response.msg)
               }
-              this.$emit('updateRow', d)
-              _this.dialogFormVisible = false
-              _this.$message.success(response.msg)
-            } else {
-              _this.$message.error(response.msg)
-            }
-            _this.btnLoading = false
-          }).catch((error) => {
-            this.btnLoading = false
-          })
+              _this.btnLoading = false
+            })
+            .catch(error => {
+              this.btnLoading = false
+            })
         } else {
           this.btnLoading = false
         }

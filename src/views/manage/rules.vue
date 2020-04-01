@@ -9,9 +9,9 @@
         <el-tooltip content="添加" placement="top">
           <el-button v-waves type="success" icon="el-icon-plus" circle @click="handleCreate"/>
         </el-tooltip>
-        <el-tooltip content="删除" placement="top">
+        <!-- <el-tooltip content="删除" placement="top">
           <el-button v-waves :loading="deleting" :disabled="buttonDisabled" type="danger" icon="el-icon-delete" circle @click="handleDeleteAll()"/>
-        </el-tooltip>
+        </el-tooltip> -->
         <el-tooltip content="更多" placement="top">
           <el-dropdown trigger="click" placement="bottom" style="margin-left: 10px;" @command="handleCommand">
             <el-button :disabled="buttonDisabled" type="Info" circle>
@@ -128,11 +128,12 @@ export default {
   },
   computed: {
     getRulesList() {
-      return tree.listToTreeMulti(this.list, 0, 'id', 'pid', 'children', { 'delete': false })
+      return tree.listToTreeMulti(this.list, '0', 'id', 'pid', 'children', {
+        delete: false
+      })
     }
   },
-  watch: {
-  },
+  watch: {},
   created() {
     this.fetchList()
   },
@@ -166,7 +167,7 @@ export default {
       this.$refs.fromRules.handleUpdate(id)
     },
     handleModifyStatus(index, id, status) {
-      const statusObj = { 'status': 1 - status }
+      const statusObj = { status: 1 - status }
       this.list = tree.upadteArr(this.list, 'id', id, statusObj)
       change(id, 'status', 1 - status).then(response => {})
     },
@@ -179,28 +180,32 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(() => {
-        const delObj = { 'delete': true }
-        _this.list = tree.upadteArr(_this.list, 'id', id, delObj)
-        del(id).then(response => {
-          if (response.status === 1) {
-            _this.$notify.success(response.msg)
-            _this.fetchList()
-          } else {
-            _this.$notify.error(response.msg)
-          }
-          const delObj = { 'delete': false }
-          _this.list = tree.upadteArr(_this.list, 'id', id, delObj)
-        }).catch((error) => {
-          const delObj = { 'delete': false }
-          _this.list = tree.upadteArr(_this.list, 'id', id, delObj)
-        })
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消删除'
-        })
       })
+        .then(() => {
+          const delObj = { delete: true }
+          _this.list = tree.upadteArr(_this.list, 'id', id, delObj)
+          del(id)
+            .then(response => {
+              if (response.status === 1) {
+                _this.$notify.success(response.msg)
+                _this.fetchList()
+              } else {
+                _this.$notify.error(response.msg)
+              }
+              const delObj = { delete: false }
+              _this.list = tree.upadteArr(_this.list, 'id', id, delObj)
+            })
+            .catch(error => {
+              const delObj = { delete: false }
+              _this.list = tree.upadteArr(_this.list, 'id', id, delObj)
+            })
+        })
+        .catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          })
+        })
     },
     handleDeleteAll() {
       const _this = this
@@ -209,27 +214,31 @@ export default {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
-        }).then(() => {
-          _this.deleting = true
-          const ids = getArrByKey(_this.selectedRows, 'id')
-          const idstr = ids.join(',')
-          delAll({ ids: idstr }).then(response => {
-            if (response.status === 1) {
-              _this.$message.success(response.msg)
-              _this.fetchList()
-            } else {
-              _this.$message.error(response.msg)
-            }
-            _this.deleting = false
-          }).catch((error) => {
-            _this.deleting = false
-          })
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消删除'
-          })
         })
+          .then(() => {
+            _this.deleting = true
+            const ids = getArrByKey(_this.selectedRows, 'id')
+            const idstr = ids.join(',')
+            delAll({ ids: idstr })
+              .then(response => {
+                if (response.status === 1) {
+                  _this.$message.success(response.msg)
+                  _this.fetchList()
+                } else {
+                  _this.$message.error(response.msg)
+                }
+                _this.deleting = false
+              })
+              .catch(error => {
+                _this.deleting = false
+              })
+          })
+          .catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消删除'
+            })
+          })
       } else {
         _this.$message.error('请选择要删除的数据')
       }
@@ -239,15 +248,16 @@ export default {
       if (this.selectedRows.length > 0) {
         const ids = getArrByKey(this.selectedRows, 'id')
         const idstr = ids.join(',')
-        changeAll({ val: idstr, field: 'status', value: command }).then(response => {
-          if (response.status === 1) {
-            _this.$message.success(response.msg)
-            _this.fetchList()
-          } else {
-            _this.$message.error(response.msg)
-          }
-        }).catch((error) => {
-        })
+        changeAll({ val: idstr, field: 'status', value: command })
+          .then(response => {
+            if (response.status === 1) {
+              _this.$message.success(response.msg)
+              _this.fetchList()
+            } else {
+              _this.$message.error(response.msg)
+            }
+          })
+          .catch(error => {})
       } else {
         _this.$message.error('请选择要操作的数据')
       }
@@ -256,12 +266,12 @@ export default {
 }
 </script>
 <style rel="stylesheet/scss" lang="scss">
-	.text-red{
-		color: red;
-		cursor: pointer;
-	}
-	.text-green{
-		color: green;
-		cursor: pointer;
-	}
+.text-red {
+  color: red;
+  cursor: pointer;
+}
+.text-green {
+  color: green;
+  cursor: pointer;
+}
 </style>

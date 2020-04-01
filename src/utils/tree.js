@@ -4,11 +4,11 @@
 import { objectMerge } from '@/utils'
 
 // 递归格式化成多维数组
-function listToTreeMulti(list, root = 0, pk = 'id', pid = 'pid', child = 'children', other = null) {
+function listToTreeMulti(list, root = "0", pk = 'id', pid = 'pid', child = 'children', other = null) {
   const tree = []
   if (list) {
     list.forEach(item => {
-      if (item[pid] === root) {
+      if (item[pid] == root) {
         if (other !== null) {
           item = objectMerge(item, other)
         }
@@ -27,7 +27,7 @@ function getParentsId(list, id, pk = 'id', pid = 'pid') {
   let tree = []
   if (list) {
     list.forEach(item => {
-      if (item[pk] === id) {
+      if (item[pk] == id) {
         tree.unshift(item[pid])
         const parent = getParentsId(list, item[pid], pk, pid)
         if (parent.length) {

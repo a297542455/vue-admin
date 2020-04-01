@@ -10,7 +10,7 @@ export function getList(query) {
 
 export function getListAll() {
   return request({
-    url: '/rules/getLists',
+    url: '/rules/getlist',
     method: 'post'
   })
 }
@@ -33,7 +33,7 @@ export function save(data) {
 
 export function del(id) {
   return request({
-    url: '/admin/rules/del',
+    url: '/rules/delete',
     method: 'get',
     params: { id }
   })

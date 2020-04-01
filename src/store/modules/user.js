@@ -68,18 +68,18 @@ const user = {
             reject('error')
           }
           const data = response.data
-
-          if (data.access && data.groupId) {
-            commit('SET_ROLES', 1)
+          const { access, groupId, userName, img, email, phone, realName } = data
+          if (access && groupId) {
+            commit('SET_ROLES', groupId)
           } else {
             reject('拉取用户权限失败')
           }
-          commit('SET_NAME', data.userName)
-          commit('SET_AVATAR', data.img)
-          commit('SET_REALNAME', data.realName)
-          commit('SET_PHONE', data.phone)
-          commit('SET_EMAIL', data.email)
-          commit('SET_GROUP', data.group)
+          commit('SET_NAME', userName)
+          commit('SET_AVATAR', img)
+          commit('SET_REALNAME', realName)
+          commit('SET_PHONE', phone)
+          commit('SET_EMAIL', email)
+          commit('SET_GROUP', groupId)
           resolve(response)
         }).catch(error => {
           reject(error)

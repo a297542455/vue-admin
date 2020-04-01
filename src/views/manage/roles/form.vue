@@ -41,7 +41,7 @@ export default {
       btnLoading: false,
       ruleList: [],
       temp: {
-        id: 0,
+        id: '',
         title: '',
         status: 1,
         rules: ''
@@ -60,7 +60,6 @@ export default {
         children: 'children',
         label: 'title'
       }
-
     }
   },
   computed: {
@@ -76,17 +75,16 @@ export default {
   created() {
     this.getRules()
   },
-  destroyed() {
-  },
+  destroyed() {},
   methods: {
     getRules() {
       getListAll().then(response => {
-        this.ruleList = response.data
+        this.ruleList = response.data.data
       })
     },
     resetTemp() {
       this.temp = {
-        id: 0,
+        id: '',
         title: '',
         status: 1,
         rules: ''
@@ -133,25 +131,27 @@ export default {
     },
     saveData() {
       this.btnLoading = true
-      this.$refs['dataForm'].validate((valid) => {
+      this.$refs['dataForm'].validate(valid => {
         if (valid) {
           const _this = this
           const d = this.temp
-          save(d).then(response => {
-            if (response.status === 1) {
-              if (!d.id) {
-                d.id = response.data.id
+          save(d)
+            .then(response => {
+              if (response.status === 1) {
+                if (!d.id) {
+                  d.id = response.data.id
+                }
+                this.$emit('updateRow', d)
+                _this.dialogFormVisible = false
+                _this.$message.success(response.msg)
+              } else {
+                _this.$message.error(response.msg)
               }
-              this.$emit('updateRow', d)
-              _this.dialogFormVisible = false
-              _this.$message.success(response.msg)
-            } else {
-              _this.$message.error(response.msg)
-            }
-            _this.btnLoading = false
-          }).catch((error) => {
-            this.btnLoading = false
-          })
+              _this.btnLoading = false
+            })
+            .catch(error => {
+              this.btnLoading = false
+            })
         } else {
           this.btnLoading = false
         }
