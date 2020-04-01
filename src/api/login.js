@@ -19,3 +19,10 @@ export function getUserInfo() {
   })
 }
 
+export function test() {
+  return request({
+    url: '/test',
+    method: 'post'
+  })
+}
+

@@ -15,6 +15,7 @@ import './icons'
 import './errorLog'
 import './permission'
 // import './mock'
+import { mockXHR } from './mock'
 
 import * as filters from './filters'
 
@@ -27,6 +28,10 @@ Vue.use(Element, {
 Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key])
 })
+
+if (process.env.NODE_ENV === 'development') {
+  mockXHR()
+}
 
 Vue.config.productionTip = false
 
