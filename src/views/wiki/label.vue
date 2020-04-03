@@ -40,11 +40,6 @@
       row-key="id"
       lazy
       @selection-change="handleSelectionChange">
-      <el-table-column label="用户ID">
-        <template slot-scope="scope">
-          <span>{{ scope.row.id }}</span>
-        </template>
-      </el-table-column>
       <el-table-column label="姓名">
         <template slot-scope="scope">
           <span>{{ scope.row.name }}</span>

@@ -62,70 +62,92 @@ export default {
         tmp = this.data
       }
       const func = this.evalFunc || treeToArray
-      const args = this.evalArgs ? Array.concat([tmp, this.expandAll], this.evalArgs) : [tmp, this.expandAll]
-			return func.apply(null, args)
+      const args = this.evalArgs
+        ? Array.concat([tmp, this.expandAll], this.evalArgs)
+        : [tmp, this.expandAll]
+      return func.apply(null, args)
     }
   },
   methods: {
     showRow: function(row) {
-      const show = (row.row.parent ? (row.row.parent._expanded && row.row.parent._show) : true)
+      let show = row.row.parent
+        ? row.row.parent._expanded && row.row.parent._show
+        : true
       row.row._show = show
-      return show ? 'animation:treeTableShow 1s;-webkit-animation:treeTableShow 1s;' : 'display:none;'
+      // show = show
+      //   ? 'animation:treeTableShow 1s;-webkit-animation:treeTableShow 1s;'
+      //   : 'display:none;'
+      return show
+        ? {
+            animation: 'treeTableShow 1s',
+            '-webkit-animation': 'treeTableShow 1s'
+          }
+        : { display: 'none' }
+      return show
     },
     // 切换下级是否展开
     toggleExpanded: function(trIndex) {
       const record = this.formatData[trIndex]
       record._expanded = !record._expanded
+      console.log('_expanded', record._expanded)
     },
     // 图标显示
     iconShow(index, record) {
-      return (index === 0 && record.children && record.children.length > 0)
+      return index === 0 && record.children && record.children.length > 0
     },
-		handleSelectionChange(val) {
-			this.$emit('selection-change',val)
-		}
+    handleSelectionChange(val) {
+      this.$emit('selection-change', val)
+    }
   }
 }
 </script>
 <style rel="stylesheet/css">
-  @keyframes treeTableShow {
-    from {opacity: 0;}
-    to {opacity: 1;}
+@keyframes treeTableShow {
+  from {
+    opacity: 0;
   }
-  @-webkit-keyframes treeTableShow {
-    from {opacity: 0;}
-    to {opacity: 1;}
+  to {
+    opacity: 1;
   }
+}
+@-webkit-keyframes treeTableShow {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 </style>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
-  $color-blue: #2196F3;
-  $space-width: 18px;
-  .ms-tree-space {
-    position: relative;
-    top: 1px;
-    display: inline-block;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 1;
-    width: $space-width;
-    height: 14px;
-    &::before {
-      content: ""
-    }
+$color-blue: #2196f3;
+$space-width: 18px;
+.ms-tree-space {
+  position: relative;
+  top: 1px;
+  display: inline-block;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1;
+  width: $space-width;
+  height: 14px;
+  &::before {
+    content: '';
   }
-  .processContainer{
-    width: 100%;
-    height: 100%;
-  }
-  table td {
-    line-height: 26px;
-  }
+}
+.processContainer {
+  width: 100%;
+  height: 100%;
+}
+table td {
+  line-height: 26px;
+}
 
-  .tree-ctrl{
-    position: relative;
-    cursor: pointer;
-    color: $color-blue;
-    margin-left: -$space-width;
-  }
+.tree-ctrl {
+  position: relative;
+  cursor: pointer;
+  color: $color-blue;
+  margin-left: -$space-width;
+}
 </style>

@@ -60,8 +60,7 @@
       fit
       highlight-current-row
       style="width: 100%;"
-      @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55"/>
+      @selection-change="handleSelectionChange" > 
       <!-- <el-table-column label="ID" align="center" width="65" >
         <template slot-scope="scope">
           <span>{{ scope.row.id }}</span>
