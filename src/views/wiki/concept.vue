@@ -4,14 +4,23 @@
     <div v-if="showSearch" class="filter-container">
       <el-form :inline="true" :model="listQuery" class="form-inline">
         <el-form-item label="">
-          <el-input v-model="listQuery.title" placeholder="名称" clearable size="small"/>
+          <el-input v-model="listQuery.userName" placeholder="用户名" clearable size="small"/>
         </el-form-item>
         <el-form-item label="">
-          <el-select v-model="listQuery.status" placeholder="状态" clearable size="small">
+          <el-input v-model="listQuery.phone" placeholder="手机号" clearable size="small"/>
+        </el-form-item>
+        <el-form-item label="">
+          <el-input v-model="listQuery.realName" placeholder="姓名" clearable size="small"/>
+        </el-form-item>
+        <el-form-item label="">
+          <el-select v-model="listQuery.isEnabled" placeholder="状态" clearable size="small">
             <el-option label="全部" value="-1"/>
             <el-option label="正常" value="1"/>
             <el-option label="禁用" value="0"/>
           </el-select>
+        </el-form-item>
+        <el-form-item label="">
+          <el-date-picker v-model="dateTime" :picker-options="pickerOptions" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" value-format="yyyy-MM-dd" align="right" clearable size="small"/>
         </el-form-item>
         <el-form-item>
           <el-button v-waves type="primary" icon="el-icon-search" size="small" @click="handleFilter">搜索</el-button>
@@ -62,22 +71,67 @@
       style="width: 100%;"
       @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55"/>
-      <!-- <el-table-column label="ID" align="center" width="65" >
+      <!-- <el-table-column label="ID" align="center" width="65" fixed>
         <template slot-scope="scope">
           <span>{{ scope.row.id }}</span>
         </template>
       </el-table-column> -->
-      <el-table-column label="名称" min-width="100px" >
+      <!-- <el-table-column label="头像" width="60px" fixed>
         <template slot-scope="scope">
-          <span class="link-type" @click="handleUpdate(scope.$index,scope.row.id)">{{ scope.row.title }}</span>
+          <span class="link-type" @click="handleImg(scope.row.img)"><img :src="scope.row.img" width="40" height="40"></span>
+        </template>
+      </el-table-column> -->
+      <el-table-column label="用户名" min-width="100px" fixed>
+        <template slot-scope="scope">
+          <span class="link-type" @click="handleUpdate(scope.$index,scope.row.id)">{{ scope.row.userName }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="状态" width="110px" align="center">
+      <el-table-column label="手机" width="200px" align="center">
         <template slot-scope="scope">
-          <span :class="{'el-icon-success text-green':scope.row.status == 1,'el-icon-error text-red':scope.row.status == 0}" @click="handleModifyStatus(scope.$index,scope.row.id,scope.row.status)">{{ scope.row.status | statusFilter }}</span>
+          <span>{{ scope.row.phone }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="120px" class-name="small-padding" >
+      <el-table-column label="邮箱" width="200px" align="center">
+        <template slot-scope="scope">
+          <span>{{ scope.row.email }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="姓名" width="200px" align="center">
+        <template slot-scope="scope">
+          <span>{{ scope.row.realName }}</span>
+        </template>
+      </el-table-column>
+      <!-- <el-table-column label="分组" width="200px" align="center">
+        <template slot-scope="scope">
+          <span>{{ scope.row.title }}</span>
+        </template>
+      </el-table-column> -->
+      <el-table-column label="状态" width="200px" align="center">
+        <template slot-scope="scope">
+          <span :class="{'el-icon-success text-green':scope.row.isEnabled == 1,'el-icon-error text-red':scope.row.isEnabled == 0}" @click="handleModifyStatus(scope.$index,scope.row.id,scope.row.isEnabled)">{{ scope.row.isEnabled | statusFilter }}</span>
+        </template>
+      </el-table-column>
+      <!-- <el-table-column label="登录IP" width="120px" align="center">
+        <template slot-scope="scope">
+          <span>{{ scope.row.loginIp }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="登录时间" width="160px" align="center">
+        <template slot-scope="scope">
+          <span>{{ scope.row.loginTime|parseTime('{y}-{m}-{d} {h}:{i}:{s}') }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="注册IP" width="120px" align="center">
+        <template slot-scope="scope">
+          <span>{{ scope.row.regIp }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="注册时间" width="160px" align="center">
+        <template slot-scope="scope">
+          <span>{{ scope.row.regTime|parseTime('{y}-{m}-{d} {h}:{i}:{s}') }}</span>
+        </template>
+      </el-table-column> -->
+      <el-table-column label="操作" align="center" width="120px" class-name="small-padding fixed-width" fixed="right">
         <template slot-scope="scope">
           <el-tooltip content="编辑" placement="top">
             <el-button v-waves type="primary" icon="el-icon-edit-outline" circle @click="handleUpdate(scope.$index,scope.row.id)"/>
@@ -91,24 +145,25 @@
 
     <!-- 分页 -->
     <div class="pagination-container">
-      <el-pagination v-show="total>0" :current-page="listQuery.page" :page-sizes="[10,20,30, 50]" :page-size="listQuery.psize" :total="total" background layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange" @current-change="handleCurrentChange"/>
+      <el-pagination v-show="total>0" :current-page="listQuery.page" :page-sizes="[100,20,30, 50]" :page-size="listQuery.psize" :total="total" background layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange" @current-change="handleCurrentChange"/>
     </div>
 
     <!-- 表单 -->
-    <rolesForm ref="fromRoles" @updateRow="updateRow"/>
+    <adminForm ref="fromAdmin" @updateRow="updateRow"/>
 
   </div>
 </template>
 
 <script>
-import { getList, del, change, delAll, changeAll } from '@/api/roles'
+import { getList, del, change, delAll, changeAll } from '@/api/admin'
 import waves from '@/directive/waves'
-import { pickerOptions, getArrByKey } from '@/utils'
-import rolesForm from './roles/form'
+import { parseTime, pickerOptions, getArrByKey } from '@/utils'
+import adminForm from './concept/form'
+import openWindow from '@/utils/openWindow'
 
 export default {
-  name: 'Roles',
-  components: { rolesForm },
+  name: 'Admin',
+  components: { adminForm },
   directives: {
     waves
   },
@@ -132,16 +187,26 @@ export default {
       listQuery: {
         page: 1,
         psize: 10,
-        status: '-1',
-        title: ''
+        isEnabled: '-1',
+        userName: '',
+        phone: '',
+        realName: '',
+        startTime: '',
+        endTime: ''
       },
       buttonDisabled: true,
       deleting: false,
+      dateTime: '',
       pickerOptions: pickerOptions,
       currentIndex: -1
     }
   },
-  watch: {},
+  watch: {
+    dateTime: function(val) {
+      this.listQuery.startTime = val[0]
+      this.listQuery.endTime = val[1]
+    }
+  },
   created() {
     this.fetchList()
   },
@@ -161,10 +226,15 @@ export default {
     handleFilterClear() {
       this.listQuery = {
         page: 1,
-        psize: 10,
-        status: '-1',
-        title: ''
+        psize: 100,
+        isEnabled: '-1',
+        userName: '',
+        phone: '',
+        realName: '',
+        startTime: '',
+        endTime: ''
       }
+      this.dateTime = ''
       this.fetchList()
     },
     handleSizeChange(val) {
@@ -175,9 +245,9 @@ export default {
       this.listQuery.page = val
       this.fetchList()
     },
-    handleModifyStatus(index, id, status) {
-      this.list[index]['status'] = 1 - status
-      change(id, 'status', 1 - status).then(response => {})
+    handleModifyStatus(index, id, isEnabled) {
+      this.list[index]['isEnabled'] = 1 - isEnabled
+      change(id, 'isEnabled', 1 - isEnabled).then(response => {})
     },
     handleSelectionChange(val) {
       if (val.length > 0) {
@@ -187,22 +257,25 @@ export default {
       }
       this.selectedRows = val
     },
+    handleImg(img) {
+      openWindow(img, '图片预览', '500', '400')
+    },
     handleCreate() {
-      this.$refs.fromRoles.handleCreate()
+      this.$refs.fromAdmin.handleCreate()
     },
     handleUpdate(index, id) {
       this.currentIndex = index
-      this.$refs.fromRoles.handleUpdate(id)
+      this.$refs.fromAdmin.handleUpdate(id)
     },
     updateRow(temp) {
       this.fetchList()
-      // if (this.currentIndex >= 0 && temp.id > 0) {
+      // if (this.currentIndex >= 0 && temp.id) {
       //   this.list.splice(this.currentIndex, 1, temp)
       // } else {
       //   if (this.list.length >= 10) {
       //     this.list.pop()
       //   }
-      //   this.list.push(temp)
+      //   this.list.unshift(temp)
       //   this.total = this.total + 1
       // }
       this.currentIndex = -1
@@ -288,12 +361,12 @@ export default {
       if (this.selectedRows.length > 0) {
         const ids = getArrByKey(this.selectedRows, 'id')
         const idstr = ids.join(',')
-        changeAll({ val: idstr, field: 'status', value: command })
+        changeAll({ val: idstr, field: 'isEnabled', value: command })
           .then(response => {
             if (response.status === 1) {
               _this.list.forEach(function(item, index, input) {
                 if (ids.indexOf(item.id) > -1) {
-                  _this.list[index]['status'] = command
+                  _this.list[index]['isEnabled'] = command
                 }
               })
               _this.$message.success(response.msg)

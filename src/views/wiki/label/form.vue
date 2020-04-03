@@ -1,35 +1,26 @@
 <template>
-  <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" :close-on-click-modal="false">
-    <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 100%; height: 50vh;overflow-y: scroll;">
-      <el-form-item label="角色" prop="groupId">
-        <el-select v-model="temp.groupId" class="filter-item" placeholder="请选择">
-          <el-option v-for="item in roles" :key="item.id" :label="item.title" :value="item.id" />
-          <!-- <el-option :key="1" :value="1" label="管理员" /> -->
+  <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" :close-on-click-modal="false" destroy-on-close>
+    <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="120px" style="width: 100%; height: 50vh;overflow-y: scroll;">
+      <el-form-item label="上级" prop="pids">
+        <el-select
+          v-model="temp.pids"
+          :remote-method="remoteMethod"
+          :loading="loading"
+          multiple
+          filterable
+          remote
+          reserve-keyword
+          placeholder="请输入关键词"
+          style="width:100%">
+          <el-option
+            v-for="item in options"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value" />
         </el-select>
       </el-form-item>
-      <el-form-item label="账号" prop="userName">
-        <el-input v-model="temp.userName" clearable/>
-      </el-form-item>
-      <el-form-item label="密码" prop="password">
-        <el-input v-model="temp.password" clearable/>
-      </el-form-item>
-      <!-- <el-form-item label="头像" prop="img">
-        <Upload v-model="temp.img" :config="config"/>
-      </el-form-item> -->
-      <el-form-item label="姓名" prop="realName">
-        <el-input v-model="temp.realName" clearable/>
-      </el-form-item>
-      <el-form-item label="手机" prop="phone">
-        <el-input v-model="temp.phone" clearable/>
-      </el-form-item>
-      <el-form-item label="邮箱" prop="email">
-        <el-input v-model="temp.email" clearable/>
-      </el-form-item>
-      <el-form-item label="状态">
-        <el-radio-group v-model="temp.isEnabled">
-          <el-radio :label="1">正常</el-radio>
-          <el-radio :label="0">禁用</el-radio>
-        </el-radio-group>
+      <el-form-item label="标签名称" prop="name">
+        <el-input v-model="temp.name" clearable/>
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
@@ -40,52 +31,26 @@
 </template>
 
 <script>
-import Upload from '@/components/Upload/image'
-import { getRolesAll } from '@/api/roles'
-import { getinfo, save } from '@/api/admin'
-import { formatImgToArr, getNowTime } from '@/utils'
-import { validatePhone, validateEmail } from '@/utils/validate'
-import myconfig from '@/config'
-
+import { getlist, getInfo, save } from '@/api/wiki/label'
 export default {
-  name: 'AdminForm',
-  components: { Upload },
+  name: 'LabelsForm',
+  components: {},
+  props: {
+    labelList: {
+      type: Array,
+      default: () => []
+    }
+  },
   data() {
-    var checkPhone = (rule, value, callback) => {
-      if (validatePhone(value)) {
-        callback()
-      } else {
-        return callback(new Error())
-      }
-    }
-    var checkEmail = (rule, value, callback) => {
-      if (validateEmail(value)) {
-        callback()
-      } else {
-        return callback(new Error())
-      }
-    }
     return {
+      value: [],
+      options: [],
+      loading: false,
       btnLoading: false,
-      roles: {},
       temp: {
-        id: '123321',
-        groupId: '1',
-        userName: '',
-        password: '',
-        realName: '',
-        isEnabled: 1,
-        phone: '',
-        email: '',
-        regTime: getNowTime()
-        // img: []
-      },
-      config: {
-        fileName: 'img',
-        limit: 1,
-        multiple: true,
-        accept: 'image/*',
-        action: myconfig.uploadUrl.img
+        id: '',
+        pids: [],
+        name: ''
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -94,13 +59,11 @@ export default {
         create: '添加'
       },
       rules: {
-        // groupId: [{ required: true, message: '角色必选', trigger: 'change' }],
-        userName: [{ required: true, message: '账号必填', trigger: 'blur' }]
-        // phone: [{ validator: checkPhone, message: '手机号格式错误', trigger: 'blur' }],
-        // email: [{ validator: checkEmail, message: '邮箱格式错误', trigger: 'blur' }]
+        name: [{ required: true, message: '标识必填', trigger: 'blur' }]
       }
     }
   },
+  computed: {},
   watch: {
     dialogFormVisible: function() {
       this.resetTemp()
@@ -111,59 +74,56 @@ export default {
       deep: true
     }
   },
-  created() {
-    this.getRoles()
-  },
+  created() {},
   destroyed() {},
   methods: {
-    getRoles() {
-      // 获取角色列表
-      getRolesAll().then(response => {
-        this.roles = response.data.data
-      })
+    remoteMethod(keyword) {
+      if (keyword !== '') {
+        this.loading = true
+        getlist({ keyword }).then(response => {
+          const data = response.data.data
+          this.options = data.map(o => {
+            return { value: `${o.id}`, label: `${o.name}` }
+          })
+          this.loading = false
+        })
+      } else {
+        this.options = []
+      }
     },
     resetTemp() {
       this.temp = {
         id: '',
-        groupId: '1',
-        userName: '',
-        password: '',
-        realName: '',
-        isEnabled: 1,
-        phone: '',
-        email: '',
-        regTime: getNowTime()
-        // img: []
+        pids: [],
+        name: ''
       }
+      this.options = []
     },
     handleCreate() {
+      this.resetTemp()
       this.dialogStatus = 'create'
       this.dialogFormVisible = true
       this.currentIndex = -1
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
+        this.$refs['dataForm'].resetFields()
       })
     },
     handleUpdate(id) {
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       const _this = this
-      getinfo(id).then(response => {
+      getInfo(id).then(response => {
         if (response.status === 1) {
-          // _this.temp.id = response.data.id
-          // _this.temp.groupId = response.data.groupId
-          // _this.temp.userName = response.data.userName
-          // _this.temp.realName = response.data.realName
-          // _this.temp.isEnabled = response.data.isEnabled
-          // _this.temp.phone = response.data.phone
-          // _this.temp.email = response.data.email
-          // _this.temp.password = ''
-          this.temp = {
-            ...response.data,
-            password: ''
-            // img: formatImgToArr(response.data.img),
-          }
-          // _this.temp.img = formatImgToArr(response.data.img)
+          const data = response.data
+          _this.temp.id = data.id
+          _this.temp.name = data.name
+          _this.temp.pids = []
+          _this.options = []
+          data.pdata.map(o => {
+            _this.options.push({ value: `${o.pid}`, label: `${o.pname}` })
+            _this.temp.pids.push(o.pid)
+          })
         }
       })
       this.$nextTick(() => {
@@ -175,17 +135,19 @@ export default {
       this.$refs['dataForm'].validate(valid => {
         if (valid) {
           const _this = this
-          const d = this.temp
-          if (typeof d.img === 'object') {
-            d.img = d.img.join(',')
+          const d = {
+            ...this.temp,
+            pids: this.temp.pids.join(',')
+          }
+          if (!d.id) {
+            this.$delete(this.temp, 'id')
           }
           save(d)
             .then(response => {
               if (response.status === 1) {
                 if (!d.id) {
-                  d.id = response.data.id
+                  d.id = response.data
                 }
-                // todo
                 this.$emit('updateRow', d)
                 _this.dialogFormVisible = false
                 _this.$message.success(response.msg)

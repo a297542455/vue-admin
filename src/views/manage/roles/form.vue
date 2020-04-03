@@ -139,7 +139,7 @@ export default {
             .then(response => {
               if (response.status === 1) {
                 if (!d.id) {
-                  d.id = response.data.id
+                  d.id = response.data
                 }
                 this.$emit('updateRow', d)
                 _this.dialogFormVisible = false
