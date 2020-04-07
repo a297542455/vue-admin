@@ -89,7 +89,6 @@ export default {
     toggleExpanded: function(trIndex) {
       const record = this.formatData[trIndex]
       record._expanded = !record._expanded
-      console.log('_expanded', record._expanded)
     },
     // 图标显示
     iconShow(index, record) {

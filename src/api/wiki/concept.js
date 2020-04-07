@@ -8,6 +8,14 @@ export function getlist(query) {
   })
 }
 
+export function fetchArticle(query) {
+  return request({
+    url: '/concept/fetchArticle',
+    method: 'post',
+    data: query
+  })
+}
+
 export function getConceptlist(query) {
   return request({
     url: '/concept/getlist',

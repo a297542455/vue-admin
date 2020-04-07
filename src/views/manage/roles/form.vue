@@ -10,6 +10,24 @@
           <el-radio :label="0">禁用</el-radio>
         </el-radio-group>
       </el-form-item>
+      <el-form-item label="上级" prop="pids">
+        <el-select
+          v-model="temp.pids"
+          :remote-method="remoteMethod"
+          :loading="loading"
+          multiple
+          filterable
+          remote
+          reserve-keyword
+          placeholder="请输入关键词"
+          style="width:100%">
+          <el-option
+            v-for="item in options"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value" />
+        </el-select>
+      </el-form-item>
       <el-form-item label="权限">
         <el-tree
           ref="tree"
@@ -31,7 +49,7 @@
 
 <script>
 import { getListAll } from '@/api/rules'
-import { getinfo, save } from '@/api/roles'
+import { getinfo, save, getlabelList } from '@/api/roles'
 import tree from '@/utils/tree'
 
 export default {
@@ -39,7 +57,9 @@ export default {
   data() {
     return {
       btnLoading: false,
+      loading: false,
       ruleList: [],
+      options: [],
       temp: {
         id: '',
         title: '',
@@ -77,6 +97,20 @@ export default {
   },
   destroyed() {},
   methods: {
+    remoteMethod(keyword) {
+      if (keyword !== '') {
+        this.loading = true
+        getlabelList({ keyword }).then(response => {
+          const data = response.data.data
+          this.options = data.map(o => {
+            return { value: `${o.id}`, label: `${o.name}` }
+          })
+          this.loading = false
+        })
+      } else {
+        this.options = []
+      }
+    },
     getRules() {
       getListAll().then(response => {
         this.ruleList = response.data.data
@@ -87,6 +121,7 @@ export default {
         id: '',
         title: '',
         status: 1,
+        pids: '',
         rules: ''
       }
     },
@@ -118,11 +153,19 @@ export default {
       const _this = this
       getinfo(id).then(response => {
         if (response.status === 1) {
-          _this.temp.id = response.data.id
-          _this.temp.title = response.data.title
-          _this.temp.status = response.data.status
-          _this.temp.rules = response.data.rules
+          const data = response.data
+          _this.temp.id = data.id
+          _this.temp.title = data.title
+          _this.temp.status = data.status
+          _this.temp.rules = data.rules
           this.$refs.tree.setCheckedKeys(_this.temp.rules.split(','))
+          _this.temp.pids = []
+          _this.options = []
+          data.pdata &&
+            data.pdata.map(o => {
+              _this.options.push({ value: `${o.pid}`, label: `${o.pname}` })
+              _this.temp.pids.push(o.pid)
+            })
         }
       })
       this.$nextTick(() => {
@@ -135,6 +178,7 @@ export default {
         if (valid) {
           const _this = this
           const d = this.temp
+          d.pids = d.pids.join(',')
           save(d)
             .then(response => {
               if (response.status === 1) {

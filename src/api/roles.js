@@ -1,5 +1,13 @@
 import request from '@/utils/request'
 
+export function getlabelList(query) {
+  return request({
+    url: '/label/getlist',
+    method: 'post',
+    data: query
+  })
+}
+
 export function getList(query) {
   return request({
     url: '/roles/getPlist',

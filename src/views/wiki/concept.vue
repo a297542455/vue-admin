@@ -115,6 +115,9 @@
     <!-- 表单 -->
     <adminForm ref="fromAdmin" @updateRow="updateRow"/>
 
+    <!-- 表单 -->
+    <article-detail :is-edit="isEdit" />
+
   </div>
 </template>
 
@@ -124,10 +127,11 @@ import waves from '@/directive/waves'
 import { parseTime, pickerOptions, getArrByKey } from '@/utils'
 import adminForm from './concept/form'
 import openWindow from '@/utils/openWindow'
+import ArticleDetail from './components/ArticleDetail'
 
 export default {
   name: 'Admin',
-  components: { adminForm },
+  components: { adminForm, ArticleDetail },
   directives: {
     waves
   },
@@ -166,7 +170,8 @@ export default {
       deleting: false,
       dateTime: '',
       pickerOptions: pickerOptions,
-      currentIndex: -1
+      currentIndex: -1,
+      isEdit: false
     }
   },
   watch: {
