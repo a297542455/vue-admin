@@ -69,7 +69,7 @@ export default {
       btnLoading: false,
       roles: {},
       temp: {
-        id: '123321',
+        id: '',
         groupId: '1',
         userName: '',
         password: '',

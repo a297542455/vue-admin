@@ -93,14 +93,24 @@
           fit
           highlight-current-row
           style="width: 100%;">
-          <el-table-column label="ID" align="center" width="100">
+          <el-table-column label="名称" width="100px">
             <template slot-scope="scope">
-              <span>{{ scope.row.id }}</span>
+              <span>{{ scope.row.name }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="用户ID" width="100px">
+          <el-table-column label="摘要" width="100px">
             <template slot-scope="scope">
-              <span>{{ scope.row.uid }}</span>
+              <span>{{ scope.row.summary }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" align="center" width="120px" class-name="small-padding">
+            <template slot-scope="scope">
+              <el-tooltip content="编辑" placement="top">
+                <el-button v-waves type="primary" icon="el-icon-edit-outline" circle @click="handleUpdate(scope.$index,scope.row.id)"/>
+              </el-tooltip>
+              <el-tooltip content="删除" placement="top">
+                <el-button v-waves :loading="scope.row.delete" type="danger" icon="el-icon-delete" circle @click="handleDelete(scope.$index,scope.row.id)"/>
+              </el-tooltip>
             </template>
           </el-table-column>
         </el-table>
@@ -113,10 +123,7 @@
     </div>
 
     <!-- 表单 -->
-    <adminForm ref="fromAdmin" @updateRow="updateRow"/>
-
-    <!-- 表单 -->
-    <article-detail :is-edit="isEdit" />
+    <adminForm ref="conceptForm" @updateRow="updateRow"/>
 
   </div>
 </template>
@@ -127,11 +134,10 @@ import waves from '@/directive/waves'
 import { parseTime, pickerOptions, getArrByKey } from '@/utils'
 import adminForm from './concept/form'
 import openWindow from '@/utils/openWindow'
-import ArticleDetail from './components/ArticleDetail'
 
 export default {
-  name: 'Admin',
-  components: { adminForm, ArticleDetail },
+  name: 'Concept',
+  components: { adminForm },
   directives: {
     waves
   },
@@ -237,7 +243,10 @@ export default {
       this.selectedRows = val
     },
     handleCreate() {
-      this.$refs.fromAdmin.handleCreate()
+      this.$refs.conceptForm.handleCreate()
+    },
+    handleUpdate(index, id) {
+      this.$refs.conceptForm.handleUpdate(id)
     },
     rowClick(row, column, event) {
       this.conceptlistLoading = true
@@ -251,7 +260,7 @@ export default {
         this.conceptlistLoading = false
       })
       // this.currentIndex = index
-      // this.$refs.fromAdmin.handleUpdate(id)
+      // this.$refs.conceptForm.handleUpdate(id)
     },
     updateRow(temp) {
       this.fetchList()

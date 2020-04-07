@@ -1,5 +1,13 @@
 import request from '@/utils/request'
 
+export function getlabelList(query) {
+  return request({
+    url: '/label/getlist',
+    method: 'post',
+    data: query
+  })
+}
+
 export function getlist(query) {
   return request({
     url: '/label/getlist',
@@ -8,17 +16,9 @@ export function getlist(query) {
   })
 }
 
-export function fetchArticle(query) {
-  return request({
-    url: '/concept/fetchArticle',
-    method: 'post',
-    data: query
-  })
-}
-
 export function getConceptlist(query) {
   return request({
-    url: '/concept/getlist',
+    url: '/concept/getPlist',
     method: 'post',
     data: query
   })

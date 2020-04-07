@@ -1,85 +1,118 @@
 <template>
-  <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" :close-on-click-modal="false">
-    <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 100%; height: 50vh;overflow-y: scroll;">
-      <el-form-item label="角色" prop="groupId">
-        <el-select v-model="temp.groupId" class="filter-item" placeholder="请选择">
-          <el-option v-for="item in roles" :key="item.id" :label="item.title" :value="item.id" />
-          <!-- <el-option :key="1" :value="1" label="管理员" /> -->
-        </el-select>
-      </el-form-item>
-      <el-form-item label="账号" prop="userName">
-        <el-input v-model="temp.userName" clearable/>
-      </el-form-item>
-      <el-form-item label="密码" prop="password">
-        <el-input v-model="temp.password" clearable/>
-      </el-form-item>
-      <!-- <el-form-item label="头像" prop="img">
-        <Upload v-model="temp.img" :config="config"/>
-      </el-form-item> -->
-      <el-form-item label="姓名" prop="realName">
-        <el-input v-model="temp.realName" clearable/>
-      </el-form-item>
-      <el-form-item label="手机" prop="phone">
-        <el-input v-model="temp.phone" clearable/>
-      </el-form-item>
-      <el-form-item label="邮箱" prop="email">
-        <el-input v-model="temp.email" clearable/>
-      </el-form-item>
-      <el-form-item label="状态">
-        <el-radio-group v-model="temp.isEnabled">
-          <el-radio :label="1">正常</el-radio>
-          <el-radio :label="0">禁用</el-radio>
-        </el-radio-group>
-      </el-form-item>
-    </el-form>
-    <div slot="footer" class="dialog-footer">
-      <el-button @click="dialogFormVisible = false">取消</el-button>
-      <el-button :loading="btnLoading" type="primary" @click="saveData()">保存</el-button>
-    </div>
-  </el-dialog>
+  <div class="createPost-container">
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" :close-on-click-modal="false" fullscreen>
+      <el-form ref="conceptForm" :model="conceptForm" :rules="rules" label-width="140px" class="form-container">
+
+        <el-form-item label="名称">
+          <el-input v-model="conceptForm.name" :maxlength="100" name="name" required />
+        </el-form-item>
+
+        <el-form-item label="标签" prop="label">
+          <el-select
+            v-model="conceptForm.label"
+            :remote-method="remoteMethod"
+            :loading="loading"
+            multiple
+            filterable
+            remote
+            reserve-keyword
+            placeholder="请输入关键词"
+            style="width:100%">
+            <el-option
+              v-for="item in options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value" />
+          </el-select>
+        </el-form-item>
+
+        <!-- <el-form-item label="别名(功能预留)">
+          <el-input v-model="conceptForm.sui" :maxlength="100" name="name" required />
+        </el-form-item> -->
+
+        <el-form-item label="双向词">
+          <el-select v-model="conceptForm.twoway" placeholder="是否双向词" clearable size="small" required>
+            <el-option label="是" value="1"/>
+            <el-option label="否" value="0"/>
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="摘要">
+          <el-input v-model="conceptForm.summary" :rows="1" :maxlength="100" type="textarea" class="article-textarea" autosize placeholder="摘要" />
+          <!-- <span v-show="contentShortLength" class="word-counter">剩余 {{ 100 - contentShortLength }} 字符</span> -->
+        </el-form-item>
+
+        <el-form-item prop="content" label="内容">
+          <Tinymce ref="editor" v-model="conceptForm.content" :height="300" />
+        </el-form-item>
+
+        <!-- <el-form-item prop="relation" label="关系">
+          <el-select v-model="conceptForm.relation" placeholder="是否双向词" clearable size="small" required>
+            <el-option label="是" value="1"/>
+            <el-option label="否" value="0"/>
+          </el-select>
+        </el-form-item> -->
+
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取消</el-button>
+        <el-button :loading="btnLoading" type="primary" @click="saveData()">保存</el-button>
+      </div>
+    </el-dialog>
+  </div>
 </template>
 
 <script>
+import Tinymce from '@/components/Tinymce'
+import Sticky from '@/components/Sticky' // 粘性header组件
+import { getInfo, save, getlabelList } from '@/api/wiki/concept'
 import Upload from '@/components/Upload/image'
-import { getRolesAll } from '@/api/roles'
-import { getinfo, save } from '@/api/admin'
 import { formatImgToArr, getNowTime } from '@/utils'
 import { validatePhone, validateEmail } from '@/utils/validate'
 import myconfig from '@/config'
 
+const defaultForm = {
+  id: '',
+  name: '',
+  label: [],
+  sui: '',
+  twoway: '',
+  summary: '', // 文章摘要
+  content: '', // 文章内容
+}
+
 export default {
-  name: 'AdminForm',
-  components: { Upload },
-  data() {
-    var checkPhone = (rule, value, callback) => {
-      if (validatePhone(value)) {
-        callback()
-      } else {
-        return callback(new Error())
-      }
+  name: 'ConceptForm',
+  components: { Upload, Tinymce, Sticky },
+  props: {
+    isEdit: {
+      type: Boolean,
+      default: false
     }
-    var checkEmail = (rule, value, callback) => {
-      if (validateEmail(value)) {
-        callback()
+  },
+  data() {
+    const validateRequire = (rule, value, callback) => {
+      if (value === '') {
+        this.$message({
+          message: rule.field + '为必传项',
+          type: 'error'
+        })
+        callback(new Error(rule.field + '为必传项'))
       } else {
-        return callback(new Error())
+        callback()
       }
     }
     return {
-      btnLoading: false,
-      roles: {},
-      temp: {
-        id: '123321',
-        groupId: '1',
-        userName: '',
-        password: '',
-        realName: '',
-        isEnabled: 1,
-        phone: '',
-        email: '',
-        regTime: getNowTime()
-        // img: []
+      conceptForm: Object.assign({}, defaultForm),
+      loading: false,
+      options: [],
+      rules: {
+        name: [{ validator: validateRequire }],
+        summary: [{ validator: validateRequire }],
+        label: [{ validator: validateRequire }],
+        sui: [{ validator: validateRequire }],
       },
+      btnLoading: false,
       config: {
         fileName: 'img',
         limit: 1,
@@ -93,92 +126,85 @@ export default {
         update: '编辑',
         create: '添加'
       },
-      rules: {
-        // groupId: [{ required: true, message: '角色必选', trigger: 'change' }],
-        userName: [{ required: true, message: '账号必填', trigger: 'blur' }]
-        // phone: [{ validator: checkPhone, message: '手机号格式错误', trigger: 'blur' }],
-        // email: [{ validator: checkEmail, message: '邮箱格式错误', trigger: 'blur' }]
-      }
     }
+  },
+  computed: {
+    contentShortLength() {
+      console.log(123, this.conceptForm)
+      return this.conceptForm.summary.length
+    },
+    lang() {
+      return this.$store.getters.language
+    },
   },
   watch: {
     dialogFormVisible: function() {
       this.resetTemp()
     },
-    temp: {
+    conceptForm: {
       handler(newVal, oldVal) {},
       immediate: true,
       deep: true
     }
   },
-  created() {
-    this.getRoles()
-  },
+  created() {},
   destroyed() {},
   methods: {
-    getRoles() {
-      // 获取角色列表
-      getRolesAll().then(response => {
-        this.roles = response.data.data
-      })
+    remoteMethod(keyword) {
+      if (keyword !== '') {
+        this.loading = true
+        getlabelList({ keyword }).then(response => {
+          const data = response.data.data
+          this.options = data.map(o => {
+            return { value: `${o.name}`, label: `${o.name}` }
+          })
+          this.loading = false
+        })
+      } else {
+        this.options = []
+      }
     },
     resetTemp() {
-      this.temp = {
-        id: '',
-        groupId: '1',
-        userName: '',
-        password: '',
-        realName: '',
-        isEnabled: 1,
-        phone: '',
-        email: '',
-        regTime: getNowTime()
-        // img: []
-      }
+      this.conceptForm = Object.assign({}, defaultForm)
     },
     handleCreate() {
       this.dialogStatus = 'create'
       this.dialogFormVisible = true
       this.currentIndex = -1
       this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
+        this.$refs['conceptForm'].clearValidate()
       })
     },
     handleUpdate(id) {
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       const _this = this
-      getinfo(id).then(response => {
+      getInfo(id).then(response => {
         if (response.status === 1) {
-          // _this.temp.id = response.data.id
-          // _this.temp.groupId = response.data.groupId
-          // _this.temp.userName = response.data.userName
-          // _this.temp.realName = response.data.realName
-          // _this.temp.isEnabled = response.data.isEnabled
-          // _this.temp.phone = response.data.phone
-          // _this.temp.email = response.data.email
-          // _this.temp.password = ''
-          this.temp = {
-            ...response.data,
-            password: ''
-            // img: formatImgToArr(response.data.img),
-          }
-          // _this.temp.img = formatImgToArr(response.data.img)
+          const data = response.data
+          _this.conceptForm = response.data
+          _this.conceptForm.label = []
+          _this.options = []
+          data.label &&
+            data.label.map(o => {
+              _this.options.push({ value: `${o.pname}`, label: `${o.pname}` })
+              _this.conceptForm.label.push(o.pname)
+            })
         }
       })
       this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
+        this.$refs['conceptForm'].clearValidate()
       })
     },
     saveData() {
       this.btnLoading = true
-      this.$refs['dataForm'].validate(valid => {
+      this.$refs['conceptForm'].validate(valid => {
         if (valid) {
           const _this = this
-          const d = this.temp
-          if (typeof d.img === 'object') {
-            d.img = d.img.join(',')
-          }
+          const d = this.conceptForm
+          d.label = d.label.join(',')
+          d.opposite = '[{"_id": "1", "name": "cn"}]'
+          d.sui = '[{"name": "测试", "type": "cn"}]'
           save(d)
             .then(response => {
               if (response.status === 1) {
@@ -205,3 +231,4 @@ export default {
   }
 }
 </script>
+
