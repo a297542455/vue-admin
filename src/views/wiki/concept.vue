@@ -251,10 +251,9 @@ export default {
     rowClick(row, column, event) {
       this.conceptlistLoading = true
       this.currentRow = row
-      const obj = {
-        label: row.name
-      }
-      getConceptlist(obj).then(response => {
+      getConceptlist({
+        label: this.currentRow.name
+      }).then(response => {
         this.conceptList = response.data.data
         this.concepttotal = response.data.total
         this.conceptlistLoading = false
@@ -263,14 +262,20 @@ export default {
       // this.$refs.conceptForm.handleUpdate(id)
     },
     updateRow(temp) {
-      this.fetchList()
+      getConceptlist({
+        label: this.currentRow.name
+      }).then(response => {
+        this.conceptList = response.data.data
+        this.concepttotal = response.data.total
+        this.conceptlistLoading = false
+      })
       // if (this.currentIndex >= 0 && temp.id) {
-      //   this.list.splice(this.currentIndex, 1, temp)
+      //   this.conceptList.splice(this.currentIndex, 1, temp)
       // } else {
-      //   if (this.list.length >= 10) {
-      //     this.list.pop()
+      //   if (this.conceptList.length >= 10) {
+      //     this.conceptList.pop()
       //   }
-      //   this.list.unshift(temp)
+      //   this.conceptList.unshift(temp)
       //   this.total = this.total + 1
       // }
       this.currentIndex = -1
@@ -287,7 +292,7 @@ export default {
           del(id)
             .then(response => {
               if (response.status === 1) {
-                _this.list.splice(index, 1)
+                _this.conceptList.splice(index, 1)
                 _this.total = _this.total - 1
                 _this.$notify.success(response.msg)
               } else {

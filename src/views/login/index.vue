@@ -89,7 +89,7 @@ export default {
     }
   },
   created() {
-    test()
+    // test()
   },
   destroyed() {},
   methods: {

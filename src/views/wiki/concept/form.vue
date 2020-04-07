@@ -1,6 +1,6 @@
 <template>
   <div class="createPost-container">
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" :close-on-click-modal="false" fullscreen>
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" :close-on-click-modal="false" destroy-on-close fullscreen>
       <el-form ref="conceptForm" :model="conceptForm" :rules="rules" label-width="140px" class="form-container">
 
         <el-form-item label="名称">
@@ -130,7 +130,6 @@ export default {
   },
   computed: {
     contentShortLength() {
-      console.log(123, this.conceptForm)
       return this.conceptForm.summary.length
     },
     lang() {
@@ -173,6 +172,7 @@ export default {
       this.currentIndex = -1
       this.$nextTick(() => {
         this.$refs['conceptForm'].clearValidate()
+        this.resetTemp()
       })
     },
     handleUpdate(id) {
@@ -183,17 +183,13 @@ export default {
         if (response.status === 1) {
           const data = response.data
           _this.conceptForm = response.data
-          _this.conceptForm.label = []
           _this.options = []
           data.label &&
             data.label.map(o => {
-              _this.options.push({ value: `${o.pname}`, label: `${o.pname}` })
-              _this.conceptForm.label.push(o.pname)
+              _this.options.push({ value: o, label: o })
             })
+          _this.conceptForm = response.data
         }
-      })
-      this.$nextTick(() => {
-        this.$refs['conceptForm'].clearValidate()
       })
     },
     saveData() {
