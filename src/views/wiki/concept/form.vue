@@ -3,7 +3,7 @@
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" :close-on-click-modal="false" destroy-on-close fullscreen>
       <el-form ref="conceptForm" :model="conceptForm" :rules="rules" label-width="140px" class="form-container">
 
-        <el-form-item label="名称">
+        <el-form-item label="名称" prop="name">
           <el-input v-model="conceptForm.name" :maxlength="100" name="name" required />
         </el-form-item>
 
@@ -30,14 +30,14 @@
           <el-input v-model="conceptForm.sui" :maxlength="100" name="name" required />
         </el-form-item> -->
 
-        <el-form-item label="双向词">
+        <el-form-item label="双向词" prop="twoway">
           <el-select v-model="conceptForm.twoway" placeholder="是否双向词" clearable size="small" required>
             <el-option label="是" value="1"/>
             <el-option label="否" value="0"/>
           </el-select>
         </el-form-item>
 
-        <el-form-item label="摘要">
+        <el-form-item label="摘要" prop="summary">
           <el-input v-model="conceptForm.summary" :rows="1" :maxlength="100" type="textarea" class="article-textarea" autosize placeholder="摘要" />
           <!-- <span v-show="contentShortLength" class="word-counter">剩余 {{ 100 - contentShortLength }} 字符</span> -->
         </el-form-item>
@@ -76,7 +76,7 @@ const defaultForm = {
   name: '',
   label: [],
   sui: '',
-  twoway: '',
+  twoway: '0',
   summary: '', // 文章摘要
   content: '', // 文章内容
 }
@@ -164,16 +164,16 @@ export default {
       }
     },
     resetTemp() {
-      this.conceptForm = Object.assign({}, defaultForm)
+      this.$nextTick(() => {
+        this.$refs['conceptForm'].clearValidate()
+        this.$refs['conceptForm'].resetFields()
+        this.conceptForm = Object.assign({}, defaultForm)
+      })
     },
     handleCreate() {
       this.dialogStatus = 'create'
       this.dialogFormVisible = true
       this.currentIndex = -1
-      this.$nextTick(() => {
-        this.$refs['conceptForm'].clearValidate()
-        this.resetTemp()
-      })
     },
     handleUpdate(id) {
       this.dialogStatus = 'update'
@@ -198,6 +198,11 @@ export default {
         if (valid) {
           const _this = this
           const d = this.conceptForm
+          // if (!d.id) {
+          //   this.$delete(d, 'id')
+          // } else {
+          //   d._id = d.id
+          // }
           d.label = d.label.join(',')
           d.opposite = '[{"_id": "1", "name": "cn"}]'
           d.sui = '[{"name": "测试", "type": "cn"}]'
@@ -205,7 +210,7 @@ export default {
             .then(response => {
               if (response.status === 1) {
                 if (!d.id) {
-                  d.id = response.data
+                  d.id = response.data._id
                 }
                 // todo
                 this.$emit('updateRow', d)

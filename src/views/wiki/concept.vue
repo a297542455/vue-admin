@@ -84,7 +84,7 @@
         </el-table>
       </el-col>
 
-      <el-col :span="6">
+      <el-col :span="18">
         <el-table
           v-loading="conceptlistLoading"
           :data="conceptList"
@@ -93,20 +93,23 @@
           fit
           highlight-current-row
           style="width: 100%;">
-          <el-table-column label="名称" width="100px">
+          <el-table-column label="名称">
             <template slot-scope="scope">
               <span>{{ scope.row.name }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="摘要" width="100px">
+          <el-table-column label="摘要">
             <template slot-scope="scope">
               <span>{{ scope.row.summary }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="操作" align="center" width="120px" class-name="small-padding">
+          <el-table-column label="操作" align="center" class-name="small-padding">
             <template slot-scope="scope">
               <el-tooltip content="编辑" placement="top">
                 <el-button v-waves type="primary" icon="el-icon-edit-outline" circle @click="handleUpdate(scope.$index,scope.row.id)"/>
+              </el-tooltip>
+              <el-tooltip content="添加关系" placement="top">
+                <el-button v-waves type="primary" icon="el-icon-connection" circle @click="handleUpdate(scope.$index,scope.row.id)"/>
               </el-tooltip>
               <el-tooltip content="删除" placement="top">
                 <el-button v-waves :loading="scope.row.delete" type="danger" icon="el-icon-delete" circle @click="handleDelete(scope.$index,scope.row.id)"/>

@@ -1,5 +1,5 @@
 <template>
-  <div :class="{fullscreen:fullscreen}" class="tinymce-container" :style="{width:containerWidth}">
+  <div :class="{fullscreen:fullscreen}" :style="{width:containerWidth}" class="tinymce-container">
     <textarea :id="tinymceId" class="tinymce-textarea" />
     <div class="editor-custom-btn-container">
       <editorImage color="#1890ff" class="editor-upload-btn" @successCBK="imageSuccessCBK" />
@@ -84,9 +84,11 @@ export default {
   },
   watch: {
     value(val) {
-      if (!this.hasChange && this.hasInit) {
-        this.$nextTick(() =>
-          window.tinymce.get(this.tinymceId).setContent(val || ''))
+      if (val) {
+        if (!this.hasChange && this.hasInit) {
+          this.$nextTick(() =>
+            window.tinymce.get(this.tinymceId).setContent(val))
+        }
       }
     },
     language() {
@@ -197,6 +199,7 @@ export default {
       }
 
       if (tinymce) {
+        tinymce.setContent('')
         tinymce.destroy()
       }
     },
