@@ -30,7 +30,7 @@
           <el-input v-model="conceptForm.sui" :maxlength="100" name="name" required />
         </el-form-item> -->
 
-        <el-form-item label="双向词" prop="twoway">
+        <el-form-item label="双向" prop="twoway">
           <el-select v-model="conceptForm.twoway" placeholder="是否双向词" clearable size="small" required>
             <el-option label="是" value="1"/>
             <el-option label="否" value="0"/>
@@ -222,7 +222,6 @@ export default {
       })
       const obj = {
         start_id: id,
-        end_id: id,
       }
       getlistRelation(obj).then(response => {
         if (response.status === 1) {

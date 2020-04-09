@@ -10,7 +10,7 @@
           <el-radio :label="0">禁用</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item label="上级" prop="pids">
+      <el-form-item label="权限" prop="pids">
         <el-select
           v-model="temp.pids"
           :remote-method="remoteMethod"

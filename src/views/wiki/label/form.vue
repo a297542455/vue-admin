@@ -140,7 +140,7 @@ export default {
             pids: this.temp.pids.join(',')
           }
           if (!d.id) {
-            this.$delete(this.temp, 'id')
+            this.$delete(d, 'id')
           }
           save(d)
             .then(response => {

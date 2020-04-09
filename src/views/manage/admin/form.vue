@@ -11,7 +11,7 @@
         <el-input v-model="temp.userName" clearable/>
       </el-form-item>
       <el-form-item label="密码" prop="password">
-        <el-input v-model="temp.password" clearable/>
+        <el-input v-model="temp.password" type="password" clearable/>
       </el-form-item>
       <!-- <el-form-item label="头像" prop="img">
         <Upload v-model="temp.img" :config="config"/>
@@ -160,7 +160,7 @@ export default {
           // _this.temp.password = ''
           this.temp = {
             ...response.data,
-            password: ''
+            // password: ''
             // img: formatImgToArr(response.data.img),
           }
           // _this.temp.img = formatImgToArr(response.data.img)

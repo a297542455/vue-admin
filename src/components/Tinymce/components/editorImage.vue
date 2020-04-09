@@ -1,5 +1,5 @@
 <template>
-  <div class="upload-container" style="display:none">
+  <div class="upload-container">
     <el-button :style="{background:color,borderColor:color}" icon="el-icon-upload" size="mini" type="primary" @click=" dialogVisible=true">
       上传图片
     </el-button>
@@ -11,8 +11,10 @@
         :on-remove="handleRemove"
         :on-success="handleSuccess"
         :before-upload="beforeUpload"
+        :headers="{'x-access-token':this.$store.getters.token}"
+        :data="data"
         class="editor-slide-upload"
-        action="https://httpbin.org/post"
+        action="http://wiki.geehealth.cn:8080/upload/uploadPhotos"
         list-type="picture-card"
       >
         <el-button size="small" type="primary">点击上传</el-button>
@@ -37,6 +39,7 @@ export default {
   data() {
     return {
       dialogVisible: false,
+      data: {},
       listObj: {},
       fileList: []
     }
@@ -52,6 +55,7 @@ export default {
         return
       }
       this.$emit('successCBK', arr)
+      console.log('arr', arr)
       this.listObj = {}
       this.fileList = []
       this.dialogVisible = false
@@ -61,7 +65,7 @@ export default {
       const objKeyArr = Object.keys(this.listObj)
       for (let i = 0, len = objKeyArr.length; i < len; i++) {
         if (this.listObj[objKeyArr[i]].uid === uid) {
-          this.listObj[objKeyArr[i]].url = response.files.file
+          this.listObj[objKeyArr[i]].url = response.data.url
           this.listObj[objKeyArr[i]].hasSuccess = true
           return
         }
@@ -82,6 +86,12 @@ export default {
       const _URL = window.URL || window.webkitURL
       const fileName = file.uid
       this.listObj[fileName] = {}
+      this.data = {
+        pic: file,
+        id: '123'
+      }
+      console.log("file", file)
+      console.log("listObj", this.listObj)
       return new Promise((resolve, reject) => {
         const img = new Image()
         img.src = _URL.createObjectURL(file)
