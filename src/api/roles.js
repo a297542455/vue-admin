@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-export function getlabelList(query) {
+export function getlabellist(query) {
   return request({
     url: '/label/getlist',
     method: 'post',

@@ -46,7 +46,7 @@
           <Tinymce ref="editor" v-model="conceptForm.content" :height="300" />
         </el-form-item>
 
-        <el-form-item prop="relation" label="关系">
+        <el-form-item v-if="conceptForm.id" prop="relation" label="关系">
           <el-card class="box-card">
             <div slot="header" class="clearfix">
               <el-row type="flex" justify="space-around" style="text-align:center">
@@ -59,18 +59,18 @@
               </el-row>
             </div>
 
-            <el-row v-for="(o,i) in tableData" :gutter="20" :key="o.start_id+i" type="flex" justify="space-around" style="text-align:center">
+            <el-row v-for="(o,i) in list" :gutter="20" :key="o.start_id+i" type="flex" justify="space-around" style="text-align:center">
               <el-col>
-                <LabelSelect v-model="o.start_name" @changObj="changObj(arguments[0],o,'start')" />
+                <ConceptSelect v-model="o.start_name" @changObj="changObj(arguments[0],o,'start')" />
               </el-col>
               <el-col>
-                <LabelSelect v-model="o.relation_name" @changObj="changObj(arguments[0],o,'relation')" />
+                <ConceptSelect v-model="o.relation_name" @changObj="changObj(arguments[0],o,'relation')" />
               </el-col>
               <el-col>
-                <LabelSelect v-model="o.end_name" @changObj="changObj(arguments[0],o,'end')" />
+                <ConceptSelect v-model="o.end_name" @changObj="changObj(arguments[0],o,'end')" />
               </el-col>
               <el-col>
-                <el-button type="danger" size="small" icon="el-icon-delete" @click="delRelation(o)"></el-button>
+                <el-button type="danger" size="small" icon="el-icon-delete" @click="handleDelete(i,o.id)"></el-button>
               </el-col>
             </el-row>
           </el-card>
@@ -87,9 +87,9 @@
 
 <script>
 
-import LabelSelect from './LabelSelect'
+import ConceptSelect from './ConceptSelect'
 import Tinymce from '@/components/Tinymce'
-import { getInfo, save, getlabelList } from '@/api/wiki/concept'
+import { getInfo, save, getlabellist } from '@/api/wiki/concept'
 import { getlistRelation, delRelation, saveRelation } from '@/api/wiki/relation'
 import Upload from '@/components/Upload/image'
 import { formatImgToArr, getNowTime } from '@/utils'
@@ -108,7 +108,7 @@ const defaultForm = {
 
 export default {
   name: 'ConceptForm',
-  components: { Upload, Tinymce, LabelSelect },
+  components: { Upload, Tinymce, ConceptSelect },
   props: {
     isEdit: {
       type: Boolean,
@@ -159,14 +159,7 @@ export default {
         end_id: '',
         end_name: '',
       },
-      tableData: [{
-        start_id: '',
-        start_name: '',
-        relation_id: '',
-        relation_name: '',
-        end_id: '',
-        end_name: '',
-      }]
+      list: []
     }
   },
   computed: {
@@ -181,11 +174,6 @@ export default {
     dialogFormVisible: function() {
       this.resetTemp()
     },
-    conceptForm: {
-      handler(newVal, oldVal) {},
-      immediate: true,
-      deep: true
-    }
   },
   created() {},
   destroyed() {},
@@ -193,7 +181,7 @@ export default {
     remoteMethod(keyword) {
       if (keyword !== '') {
         this.loading = true
-        getlabelList({ keyword }).then(response => {
+        getlabellist({ keyword }).then(response => {
           const data = response.data.data
           this.options = data.map(o => {
             return { value: `${o.name}`, label: `${o.name}` }
@@ -230,6 +218,17 @@ export default {
               _this.options.push({ value: o, label: o })
             })
           _this.conceptForm = response.data
+        }
+      })
+      const obj = {
+        start_id: id,
+        end_id: id,
+      }
+      getlistRelation(obj).then(response => {
+        if (response.status === 1) {
+          // const data = response.data
+          this.list = response.data.data
+          console.log(1, this.list)
         }
       })
     },
@@ -270,8 +269,35 @@ export default {
         }
       })
     },
-    delRelation(o) {
-      console.log(o)
+    handleDelete(index, id) {
+      if (!id) {
+        this.list.splice(index, 1)
+        return
+      }
+      const _this = this
+      this.$confirm('此操作将永久删除该记录, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          _this.$set(_this.list[index], 'delete', true)
+          delRelation(id)
+            .then(response => {
+              if (response.status === 1) {
+                _this.list.splice(index, 1)
+                _this.$notify.success(response.msg)
+              } else {
+                _this.$notify.error(response.msg)
+              }
+            })
+        })
+        .catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          })
+        })
     },
     saveRelation(d) {
       if (d.start_id && d.relation_id && d.end_id) {
@@ -286,7 +312,7 @@ export default {
       }
     },
     addRelation(o) {
-      this.tableData.push(Object.assign({}, this.baseObj))
+      this.list.push(Object.assign({}, this.baseObj))
     },
     changObj(changeObj, o, prop) {
       o[prop + '_id'] = changeObj.value

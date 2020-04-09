@@ -1,26 +1,26 @@
 import request from '@/utils/request'
 
-export function getlabelList(query) {
+export function getlabellist(data) {
   return request({
     url: '/label/getlist',
     method: 'post',
-    data: query
+    data
   })
 }
 
-export function getlist(query) {
+export function getlist(data) {
   return request({
     url: '/label/getlist',
     method: 'post',
-    data: query
+    data
   })
 }
 
-export function getConceptlist(query) {
+export function getConceptlist(data) {
   return request({
     url: '/concept/getPlist',
     method: 'post',
-    data: query
+    data
   })
 }
 

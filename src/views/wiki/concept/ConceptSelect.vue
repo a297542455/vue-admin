@@ -17,9 +17,9 @@
 </template>
 
 <script>
-import { getlabelList } from '@/api/wiki/concept'
+import { getConceptlist } from '@/api/wiki/concept'
 export default {
-  name: 'LabelSelect',
+  name: 'ConceptSelect',
   props: {
     value: {
       type: String,
@@ -52,7 +52,7 @@ export default {
     remoteMethod(keyword) {
       if (keyword !== '') {
         this.loading = true
-        getlabelList({ keyword }).then(response => {
+        getConceptlist({ keyword }).then(response => {
           const data = response.data.data
           this.options = data.map(o => {
             return { value: `${o.id}`, label: `${o.name}` }

@@ -49,7 +49,7 @@
 
 <script>
 import { getListAll } from '@/api/rules'
-import { getinfo, save, getlabelList } from '@/api/roles'
+import { getinfo, save, getlabellist } from '@/api/roles'
 import tree from '@/utils/tree'
 
 export default {
@@ -100,7 +100,7 @@ export default {
     remoteMethod(keyword) {
       if (keyword !== '') {
         this.loading = true
-        getlabelList({ keyword }).then(response => {
+        getlabellist({ keyword }).then(response => {
           const data = response.data.data
           this.options = data.map(o => {
             return { value: `${o.id}`, label: `${o.name}` }
