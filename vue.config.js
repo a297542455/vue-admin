@@ -12,7 +12,7 @@ const BASE_URL = process.env.NODE_ENV === 'production'
 // 项目部署目录，相对于根目录
 const WWW_ROOT = process.env.NODE_ENV === 'production'
   ? '/vue-admin/'
-  : '/'
+  : './'
 
 module.exports = {
   publicPath: WWW_ROOT,
