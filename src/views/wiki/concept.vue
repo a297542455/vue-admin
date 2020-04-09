@@ -108,9 +108,6 @@
               <el-tooltip content="编辑" placement="top">
                 <el-button v-waves type="primary" icon="el-icon-edit-outline" circle @click="handleUpdate(scope.$index,scope.row.id)"/>
               </el-tooltip>
-              <el-tooltip content="添加关系" placement="top">
-                <el-button v-waves type="primary" icon="el-icon-connection" circle @click="handleUpdate(scope.$index,scope.row.id)"/>
-              </el-tooltip>
               <el-tooltip content="删除" placement="top">
                 <el-button v-waves :loading="scope.row.delete" type="danger" icon="el-icon-delete" circle @click="handleDelete(scope.$index,scope.row.id)"/>
               </el-tooltip>

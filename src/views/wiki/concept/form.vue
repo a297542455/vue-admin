@@ -46,12 +46,35 @@
           <Tinymce ref="editor" v-model="conceptForm.content" :height="300" />
         </el-form-item>
 
-        <!-- <el-form-item prop="relation" label="关系">
-          <el-select v-model="conceptForm.relation" placeholder="是否双向词" clearable size="small" required>
-            <el-option label="是" value="1"/>
-            <el-option label="否" value="0"/>
-          </el-select>
-        </el-form-item> -->
+        <el-form-item prop="relation" label="关系">
+          <el-card class="box-card">
+            <div slot="header" class="clearfix">
+              <el-row type="flex" justify="space-around" style="text-align:center">
+                <el-col>开始节点</el-col>
+                <el-col>逻辑关系</el-col>
+                <el-col>结束节点</el-col>
+                <el-col>
+                  <el-button type="primary" size="small" icon="el-icon-plus" @click="addRelation()"></el-button>
+                </el-col>
+              </el-row>
+            </div>
+
+            <el-row v-for="(o,i) in tableData" :gutter="20" :key="o.start_id+i" type="flex" justify="space-around" style="text-align:center">
+              <el-col>
+                <LabelSelect v-model="o.start_name" @changObj="changObj(arguments[0],o,'start')" />
+              </el-col>
+              <el-col>
+                <LabelSelect v-model="o.relation_name" @changObj="changObj(arguments[0],o,'relation')" />
+              </el-col>
+              <el-col>
+                <LabelSelect v-model="o.end_name" @changObj="changObj(arguments[0],o,'end')" />
+              </el-col>
+              <el-col>
+                <el-button type="danger" size="small" icon="el-icon-delete" @click="delRelation(o)"></el-button>
+              </el-col>
+            </el-row>
+          </el-card>
+        </el-form-item>
 
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -63,9 +86,11 @@
 </template>
 
 <script>
+
+import LabelSelect from './LabelSelect'
 import Tinymce from '@/components/Tinymce'
-import Sticky from '@/components/Sticky' // 粘性header组件
 import { getInfo, save, getlabelList } from '@/api/wiki/concept'
+import { getlistRelation, delRelation, saveRelation } from '@/api/wiki/relation'
 import Upload from '@/components/Upload/image'
 import { formatImgToArr, getNowTime } from '@/utils'
 import { validatePhone, validateEmail } from '@/utils/validate'
@@ -83,7 +108,7 @@ const defaultForm = {
 
 export default {
   name: 'ConceptForm',
-  components: { Upload, Tinymce, Sticky },
+  components: { Upload, Tinymce, LabelSelect },
   props: {
     isEdit: {
       type: Boolean,
@@ -126,6 +151,22 @@ export default {
         update: '编辑',
         create: '添加'
       },
+      baseObj: {
+        start_id: '',
+        start_name: '',
+        relation_id: '',
+        relation_name: '',
+        end_id: '',
+        end_name: '',
+      },
+      tableData: [{
+        start_id: '',
+        start_name: '',
+        relation_id: '',
+        relation_name: '',
+        end_id: '',
+        end_name: '',
+      }]
     }
   },
   computed: {
@@ -228,8 +269,47 @@ export default {
           this.btnLoading = false
         }
       })
-    }
+    },
+    delRelation(o) {
+      console.log(o)
+    },
+    saveRelation(d) {
+      if (d.start_id && d.relation_id && d.end_id) {
+        saveRelation(d).then(response => {
+          if (response.status === 1) {
+            if (!d.id) {
+              d.id = response.data.id
+              console.log(d)
+            }
+          }
+        })
+      }
+    },
+    addRelation(o) {
+      this.tableData.push(Object.assign({}, this.baseObj))
+    },
+    changObj(changeObj, o, prop) {
+      o[prop + '_id'] = changeObj.value
+      o[prop + '_name'] = changeObj.label
+      this.saveRelation(o)
+    },
   }
 }
 </script>
 
+<style rel="stylesheet/scss" lang="scss" scoped>
+  .el-row {
+    margin-bottom: 10px;
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+  .clearfix:before,
+  .clearfix:after {
+    display: table;
+    content: "";
+  }
+  .clearfix:after {
+    clear: both
+  }
+</style>
