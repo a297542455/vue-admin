@@ -7,6 +7,10 @@
           <el-input v-model="conceptForm.name" :maxlength="100" name="name" required />
         </el-form-item>
 
+        <!-- <el-form-item label="图片" prop="imgurl">
+          <Upload v-model="conceptForm.imgurl" />
+        </el-form-item> -->
+
         <el-form-item label="标签" prop="label">
           <el-select
             v-model="conceptForm.label"
@@ -86,12 +90,11 @@
 </template>
 
 <script>
-
 import ConceptSelect from './ConceptSelect'
 import Tinymce from '@/components/Tinymce'
 import { getInfo, save, getlabellist } from '@/api/wiki/concept'
 import { getlistRelation, delRelation, saveRelation } from '@/api/wiki/relation'
-import Upload from '@/components/Upload/image'
+import Upload from '@/components/Upload/myUpload'
 import { formatImgToArr, getNowTime } from '@/utils'
 import { validatePhone, validateEmail } from '@/utils/validate'
 import myconfig from '@/config'
@@ -103,7 +106,7 @@ const defaultForm = {
   sui: '',
   twoway: '0',
   summary: '', // 文章摘要
-  content: '', // 文章内容
+  content: '' // 文章内容
 }
 
 export default {
@@ -135,7 +138,7 @@ export default {
         name: [{ validator: validateRequire }],
         summary: [{ validator: validateRequire }],
         label: [{ validator: validateRequire }],
-        sui: [{ validator: validateRequire }],
+        sui: [{ validator: validateRequire }]
       },
       btnLoading: false,
       config: {
@@ -157,7 +160,7 @@ export default {
         relation_id: '',
         relation_name: '',
         end_id: '',
-        end_name: '',
+        end_name: ''
       },
       list: []
     }
@@ -168,12 +171,12 @@ export default {
     },
     lang() {
       return this.$store.getters.language
-    },
+    }
   },
   watch: {
     dialogFormVisible: function() {
       this.resetTemp()
-    },
+    }
   },
   created() {},
   destroyed() {},
@@ -221,7 +224,7 @@ export default {
         }
       })
       const obj = {
-        start_id: id,
+        start_id: id
       }
       getlistRelation(obj).then(response => {
         if (response.status === 1) {
@@ -234,6 +237,8 @@ export default {
     saveData() {
       this.btnLoading = true
       this.$refs['conceptForm'].validate(valid => {
+        console.log(valid)
+        console.log(this.conceptForm)
         if (valid) {
           const _this = this
           const d = this.conceptForm
@@ -281,15 +286,14 @@ export default {
       })
         .then(() => {
           _this.$set(_this.list[index], 'delete', true)
-          delRelation(id)
-            .then(response => {
-              if (response.status === 1) {
-                _this.list.splice(index, 1)
-                _this.$notify.success(response.msg)
-              } else {
-                _this.$notify.error(response.msg)
-              }
-            })
+          delRelation(id).then(response => {
+            if (response.status === 1) {
+              _this.list.splice(index, 1)
+              _this.$notify.success(response.msg)
+            } else {
+              _this.$notify.error(response.msg)
+            }
+          })
         })
         .catch(() => {
           this.$message({
@@ -317,24 +321,24 @@ export default {
       o[prop + '_id'] = changeObj.value
       o[prop + '_name'] = changeObj.label
       this.saveRelation(o)
-    },
+    }
   }
 }
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
-  .el-row {
-    margin-bottom: 10px;
-    &:last-child {
-      margin-bottom: 0;
-    }
+.el-row {
+  margin-bottom: 10px;
+  &:last-child {
+    margin-bottom: 0;
   }
-  .clearfix:before,
-  .clearfix:after {
-    display: table;
-    content: "";
-  }
-  .clearfix:after {
-    clear: both
-  }
+}
+.clearfix:before,
+.clearfix:after {
+  display: table;
+  content: '';
+}
+.clearfix:after {
+  clear: both;
+}
 </style>

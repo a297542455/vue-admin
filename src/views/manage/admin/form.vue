@@ -13,9 +13,9 @@
       <el-form-item label="密码" prop="password">
         <el-input v-model="temp.password" type="password" clearable/>
       </el-form-item>
-      <el-form-item label="头像" prop="img">
-        <Upload v-model="temp.img" :config="config"/>
-      </el-form-item>
+      <!-- <el-form-item label="头像" prop="img">
+        <My-upload v-model="temp.img"/>
+      </el-form-item> -->
       <el-form-item label="姓名" prop="realName">
         <el-input v-model="temp.realName" clearable/>
       </el-form-item>
@@ -40,16 +40,16 @@
 </template>
 
 <script>
-import Upload from '@/components/Upload/image'
+import MyUpload from '@/components/Upload/myUpload'
 import { getRolesAll } from '@/api/roles'
 import { getinfo, save } from '@/api/admin'
+import { getId } from '@/api/public'
 import { formatImgToArr, getNowTime } from '@/utils'
 import { validatePhone, validateEmail } from '@/utils/validate'
-import myconfig from '@/config'
 
 export default {
   name: 'AdminForm',
-  components: { Upload },
+  components: { MyUpload },
   data() {
     var checkPhone = (rule, value, callback) => {
       if (validatePhone(value)) {
@@ -79,13 +79,6 @@ export default {
         email: '',
         regTime: getNowTime(),
         img: []
-      },
-      config: {
-        fileName: 'img',
-        limit: 1,
-        multiple: true,
-        accept: 'image/*',
-        action: 'http://wiki.geehealth.cn:8080/upload/uploadPhotos'
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -170,7 +163,6 @@ export default {
       })
     },
     saveData() {
-      console.log(this.temp)
       this.btnLoading = true
       this.$refs['dataForm'].validate(valid => {
         if (valid) {

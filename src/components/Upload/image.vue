@@ -87,10 +87,10 @@ export default {
         this.emitInput([])
       }
     },
-    // handlePreview(file) {
-    //   console.log('handlePreview')
-    //   openWindow(file.url, '图片预览', '500', '400')
-    // },
+    handlePreview(file) {
+      console.log('handlePreview')
+      openWindow(file.url, '图片预览', '500', '400')
+    },
     handleExceed(files, fileList) {
       console.log('handleExceed')
       this.$message.error('最多上传' + this.limit + '张图片')
@@ -107,7 +107,7 @@ export default {
         return false
       }
       this.dataobj.pic = file
-      this.dataobj.id = ''
+      this.dataobj.id = '123a1s5a1a5a5415'
       return isIMG && isLt5M
     },
     onProgress(event, file, fileList) {
@@ -139,7 +139,6 @@ export default {
       }
     },
     handleError(err, file, fileList) {
-      console.log('handleError')
       this.$message.error(err)
     }
   }
