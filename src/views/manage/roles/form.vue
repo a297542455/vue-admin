@@ -10,9 +10,9 @@
           <el-radio :label="0">禁用</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item label="权限" prop="pids">
+      <el-form-item label="权限" prop="lbdata">
         <el-select
-          v-model="temp.pids"
+          v-model="temp.lbdata"
           :remote-method="remoteMethod"
           :loading="loading"
           multiple
@@ -121,7 +121,7 @@ export default {
         id: '',
         title: '',
         status: 1,
-        pids: '',
+        lbdata: '',
         rules: ''
       }
     },
@@ -159,12 +159,12 @@ export default {
           _this.temp.status = data.status
           _this.temp.rules = data.rules
           this.$refs.tree.setCheckedKeys(_this.temp.rules.split(','))
-          _this.temp.pids = []
+          _this.temp.lbdata = []
           _this.options = []
-          data.pdata &&
-            data.pdata.map(o => {
-              _this.options.push({ value: `${o.pid}`, label: `${o.pname}` })
-              _this.temp.pids.push(o.pid)
+          data.lbdata &&
+            data.lbdata.map(o => {
+              _this.options.push({ value: `${o.lbid}`, label: `${o.lbname}` })
+              _this.temp.lbdata.push(o.lbid)
             })
         }
       })
@@ -178,7 +178,7 @@ export default {
         if (valid) {
           const _this = this
           const d = this.temp
-          d.pids = d.pids.join(',')
+          d.lbRules = d.lbdata.join(',')
           save(d)
             .then(response => {
               if (response.status === 1) {
