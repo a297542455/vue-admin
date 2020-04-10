@@ -3,20 +3,20 @@
     <el-upload
       :show-file-list="true"
       :data="dataobj"
-      :action="action"
       :multiple="multiple"
       :name="fileName"
       :accept="accept"
       :drag="drag"
       :limit="limit"
       :file-list="fileList"
-      :on-preview="handlePreview"
       :on-exceed="handleExceed"
       :before-upload="beforeUpload"
       :on-progress="onProgress"
       :on-success="handleSuccess"
       :on-error="handleError"
       :on-remove="handleRemove"
+      :headers="{'x-access-token':this.$store.getters.token}"
+      :action="'/upload/uploadPhotos'"
       class="image-uploader"
       list-type="picture-card">
       <i class="el-icon-plus"/>
@@ -32,17 +32,21 @@ export default {
   props: {
     value: {
       type: Array,
-      default: []
+      default: () => {
+        return []
+      }
     },
     config: {
       type: Object,
-      default: {
-        fileName: 'file',
-        limit: 5,
-        multiple: false,
-        accept: 'image/*',
-        action: '',
-        drag: false
+      default() {
+        return {
+          fileName: 'file',
+          limit: 5,
+          multiple: false,
+          accept: 'image/*',
+          action: '/upload/uploadPhotos',
+          drag: false
+        }
       }
     }
   },
@@ -54,7 +58,7 @@ export default {
       accept: this.config.accept,
       action: this.config.action,
       drag: this.config.drag,
-      dataobj: { filename: this.config.fileName }
+      dataobj: {}
     }
   },
   computed: {
@@ -63,7 +67,7 @@ export default {
       if (this.value === '') {
         return []
       }
-      if (typeof (this.value) === 'string') {
+      if (typeof this.value === 'string') {
         this.value = this.value.split(',')
       }
       for (let i = 0; i < this.value.length; i++) {
@@ -71,7 +75,6 @@ export default {
       }
       return imgarr
     }
-
   },
   methods: {
     emitInput(val) {
@@ -84,10 +87,12 @@ export default {
         this.emitInput([])
       }
     },
-    handlePreview(file) {
-      openWindow(file.url, '图片预览', '500', '400')
-    },
+    // handlePreview(file) {
+    //   console.log('handlePreview')
+    //   openWindow(file.url, '图片预览', '500', '400')
+    // },
     handleExceed(files, fileList) {
+      console.log('handleExceed')
       this.$message.error('最多上传' + this.limit + '张图片')
     },
     beforeUpload(file) {
@@ -101,6 +106,8 @@ export default {
         this.$message.error('上传图片大小不能超过 5MB!')
         return false
       }
+      this.dataobj.pic = file
+      this.dataobj.id = ''
       return isIMG && isLt5M
     },
     onProgress(event, file, fileList) {
@@ -109,6 +116,10 @@ export default {
       console.log('========onProgress=========')
     },
     handleSuccess(res, file, fileList) {
+      console.log('handleSuccess')
+      console.log(res)
+      console.log(file)
+      console.log(fileList)
       if (res.status === 1) {
         for (let i = 0; i < fileList.length; i++) {
           if (fileList[i]['uid'] === file['uid']) {
@@ -128,46 +139,45 @@ export default {
       }
     },
     handleError(err, file, fileList) {
+      console.log('handleError')
       this.$message.error(err)
     }
-
   }
 }
 </script>
 <style rel="stylesheet/scss" lang="scss">
-	.image-uploader {
-		.el-upload {
-			border: 1px dashed #d9d9d9;
-			border-radius: 6px;
-			cursor: pointer;
-			position: relative;
-			overflow: hidden;
-			width: 160px;
-			height: 160px;
-			.el-upload-dragger{
-				height: 100%;
-			}
-			&:hover{
-				border-color: #409EFF;
-			}
-		}
-		.el-upload-list__item{
-			width: 160px;
-			height: 160px;
-		}
-		.image {
-			width: 178px;
-			height: 178px;
-			display: block;
-		}
-		.image-uploader-icon {
-			font-size: 28px;
-			color: #8c939d;
-			width: 178px;
-			height: 178px;
-			line-height: 178px;
-			text-align: center;
-		}
-
-	}
+.image-uploader {
+  .el-upload {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    width: 160px;
+    height: 160px;
+    .el-upload-dragger {
+      height: 100%;
+    }
+    &:hover {
+      border-color: #409eff;
+    }
+  }
+  .el-upload-list__item {
+    width: 160px;
+    height: 160px;
+  }
+  .image {
+    width: 178px;
+    height: 178px;
+    display: block;
+  }
+  .image-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 178px;
+    height: 178px;
+    line-height: 178px;
+    text-align: center;
+  }
+}
 </style>

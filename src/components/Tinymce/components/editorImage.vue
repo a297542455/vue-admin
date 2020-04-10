@@ -46,16 +46,19 @@ export default {
   },
   methods: {
     checkAllSuccess() {
-      return Object.keys(this.listObj).every(item => this.listObj[item].hasSuccess)
+      return Object.keys(this.listObj).every(
+        item => this.listObj[item].hasSuccess
+      )
     },
     handleSubmit() {
       const arr = Object.keys(this.listObj).map(v => this.listObj[v])
       if (!this.checkAllSuccess()) {
-        this.$message('请等待所有图片上传成功 或 出现了网络问题，请刷新页面重新上传！')
+        this.$message(
+          '请等待所有图片上传成功 或 出现了网络问题，请刷新页面重新上传！'
+        )
         return
       }
       this.$emit('successCBK', arr)
-      console.log('arr', arr)
       this.listObj = {}
       this.fileList = []
       this.dialogVisible = false
@@ -88,15 +91,20 @@ export default {
       this.listObj[fileName] = {}
       this.data = {
         pic: file,
-        id: '123'
+        id: ''
       }
-      console.log("file", file)
-      console.log("listObj", this.listObj)
+      console.log('file', file)
+      console.log('listObj', this.listObj)
       return new Promise((resolve, reject) => {
         const img = new Image()
         img.src = _URL.createObjectURL(file)
         img.onload = function() {
-          _self.listObj[fileName] = { hasSuccess: false, uid: file.uid, width: this.width, height: this.height }
+          _self.listObj[fileName] = {
+            hasSuccess: false,
+            uid: file.uid,
+            width: this.width,
+            height: this.height
+          }
         }
         resolve(true)
       })

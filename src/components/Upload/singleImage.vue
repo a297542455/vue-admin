@@ -5,9 +5,10 @@
       :multiple="false"
       :show-file-list="false"
       :on-success="handleImageSuccess"
+      :headers="{'x-access-token':this.$store.getters.token}"
       class="image-uploader"
       drag
-      action="https://httpbin.org/post"
+      action="http://wiki.geehealth.cn:8080/upload/uploadPhotos"
     >
       <i class="el-icon-upload" />
       <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>

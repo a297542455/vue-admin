@@ -13,9 +13,9 @@
       <el-form-item label="密码" prop="password">
         <el-input v-model="temp.password" type="password" clearable/>
       </el-form-item>
-      <!-- <el-form-item label="头像" prop="img">
+      <el-form-item label="头像" prop="img">
         <Upload v-model="temp.img" :config="config"/>
-      </el-form-item> -->
+      </el-form-item>
       <el-form-item label="姓名" prop="realName">
         <el-input v-model="temp.realName" clearable/>
       </el-form-item>
@@ -77,15 +77,15 @@ export default {
         isEnabled: 1,
         phone: '',
         email: '',
-        regTime: getNowTime()
-        // img: []
+        regTime: getNowTime(),
+        img: []
       },
       config: {
         fileName: 'img',
         limit: 1,
         multiple: true,
         accept: 'image/*',
-        action: myconfig.uploadUrl.img
+        action: 'http://wiki.geehealth.cn:8080/upload/uploadPhotos'
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -132,8 +132,8 @@ export default {
         isEnabled: 1,
         phone: '',
         email: '',
-        regTime: getNowTime()
-        // img: []
+        regTime: getNowTime(),
+        img: []
       }
     },
     handleCreate() {
@@ -158,12 +158,11 @@ export default {
           // _this.temp.phone = response.data.phone
           // _this.temp.email = response.data.email
           // _this.temp.password = ''
+          // _this.temp.img = formatImgToArr(response.data.img)
           this.temp = {
             ...response.data,
-            // password: ''
-            // img: formatImgToArr(response.data.img),
+            img: formatImgToArr(response.data.img)
           }
-          // _this.temp.img = formatImgToArr(response.data.img)
         }
       })
       this.$nextTick(() => {
@@ -171,6 +170,7 @@ export default {
       })
     },
     saveData() {
+      console.log(this.temp)
       this.btnLoading = true
       this.$refs['dataForm'].validate(valid => {
         if (valid) {

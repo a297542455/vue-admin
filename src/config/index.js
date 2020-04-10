@@ -1,5 +1,5 @@
 export default {
-
+  //  目前项目不使用该文件配置
   // 应用appid
   appid: 'ty9fd2848a039ab554',
 
@@ -20,7 +20,7 @@ export default {
 
   // 上传路径
   uploadUrl: {
-    img: 'http://wiki.geehealth.cn:8080/admin/upload/upimage',
+    img: 'http://wiki.geehealth.cn:8080/upload/uploadPhotos',
     video: '',
     file: ''
   }
