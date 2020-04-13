@@ -70,7 +70,7 @@ export default {
       roles: {},
       temp: {
         id: '',
-        groupId: '1',
+        groupId: '',
         userName: '',
         password: '',
         realName: '',
@@ -118,7 +118,7 @@ export default {
     resetTemp() {
       this.temp = {
         id: '',
-        groupId: '1',
+        groupId: '',
         userName: '',
         password: '',
         realName: '',
