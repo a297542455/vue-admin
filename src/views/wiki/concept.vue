@@ -288,7 +288,7 @@ export default {
         type: 'warning'
       })
         .then(() => {
-          _this.$set(_this.list[index], 'delete', true)
+          _this.$set(_this.conceptList[index], 'delete', true)
           del(id)
             .then(response => {
               if (response.status === 1) {
@@ -298,10 +298,10 @@ export default {
               } else {
                 _this.$notify.error(response.msg)
               }
-              _this.$set(_this.list[index], 'delete', false)
+              _this.$set(_this.conceptList[index], 'delete', false)
             })
             .catch(error => {
-              _this.$set(_this.list[index], 'delete', false)
+              _this.$set(_this.conceptList[index], 'delete', false)
             })
         })
         .catch(() => {

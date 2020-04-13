@@ -29,7 +29,7 @@ export function parseTime(time, cFormat) {
   const time_str = format.replace(/{(y|m|d|h|i|s|a)+}/g, (result, key) => {
     let value = formatObj[key]
     // Note: getDay() returns 0 on Sunday
-    if (key === 'a') { return ['日', '一', '二', '三', '四', '五', '六'][value ] }
+    if (key === 'a') { return ['日', '一', '二', '三', '四', '五', '六'][value] }
     if (result.length > 0 && value < 10) {
       value = '0' + value
     }
@@ -138,11 +138,11 @@ export function param2Obj(url) {
   }
   return JSON.parse(
     '{"' +
-      decodeURIComponent(search)
-        .replace(/"/g, '\\"')
-        .replace(/&/g, '","')
-        .replace(/=/g, '":"') +
-      '"}'
+    decodeURIComponent(search)
+      .replace(/"/g, '\\"')
+      .replace(/&/g, '","')
+      .replace(/=/g, '":"') +
+    '"}'
   )
 }
 
@@ -250,7 +250,7 @@ export function getTime(type) {
 export function debounce(func, wait, immediate) {
   let timeout, args, context, timestamp, result
 
-  const later = function() {
+  const later = function () {
     // 据上一次触发时间间隔
     const last = +new Date() - timestamp
 
@@ -267,7 +267,7 @@ export function debounce(func, wait, immediate) {
     }
   }
 
-  return function(...args) {
+  return function (...args) {
     context = this
     timestamp = +new Date()
     const callNow = immediate && !timeout
@@ -317,7 +317,7 @@ export function getArrByKey(arr, key) {
 }
 
 export function getArrAttrByKey(arr, key, attr, v) {
-  const str = ''
+  let str = ''
   for (let i = 0; i < arr.length; i++) {
     if (arr[i].hasOwnProperty(key) && arr[i].hasOwnProperty(attr) && arr[i][key] == v) {
       str = arr[i][attr]
@@ -327,6 +327,9 @@ export function getArrAttrByKey(arr, key, attr, v) {
 }
 
 export function formatImgToArr(imgStr) {
+  if (!imgStr) {
+    return []
+  }
   let imgarr = []
   const img = []
   if (imgStr === '') {

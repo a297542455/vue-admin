@@ -26,6 +26,7 @@
 
 <script>
 import { getArrByKey } from '@/utils'
+import { getId } from '@/api/public'
 import openWindow from '@/utils/openWindow'
 export default {
   name: 'ImageUpload',
@@ -35,6 +36,10 @@ export default {
       default: () => {
         return []
       }
+    },
+    id: {
+      type: String,
+      default: ''
     },
     config: {
       type: Object,
@@ -63,15 +68,16 @@ export default {
   },
   computed: {
     fileList() {
+      let a = []
       const imgarr = []
       if (this.value === '') {
         return []
       }
       if (typeof this.value === 'string') {
-        this.value = this.value.split(',')
+        a = this.value.split(',')
       }
-      for (let i = 0; i < this.value.length; i++) {
-        imgarr.push({ url: this.value[i] })
+      for (let i = 0; i < a.length; i++) {
+        imgarr.push({ url: a[i] })
       }
       return imgarr
     }
@@ -95,20 +101,22 @@ export default {
       console.log('handleExceed')
       this.$message.error('最多上传' + this.limit + '张图片')
     },
-    beforeUpload(file) {
-      const isIMG = file.type === 'image/jpeg' || file.type === 'image/png'
-      const isLt5M = file.size / 1024 / 1024 < 5
-      if (!isIMG) {
-        this.$message.error('上传图片只能是 JPG、PNG 格式!')
-        return false
+    async beforeUpload(file) {
+      if (!this.picId) {
+        await getId()
+          .then(response => {
+            if (response.status === 1) {
+              this.dataObj.id = response.data.id
+            }
+          })
+          .catch(error => {
+            return false
+          })
+      } else {
+        this.dataObj.id = this.picId
       }
-      if (!isLt5M) {
-        this.$message.error('上传图片大小不能超过 5MB!')
-        return false
-      }
-      this.dataobj.pic = file
-      this.dataobj.id = '123a1s5a1a5a5415'
-      return isIMG && isLt5M
+      this.dataObj.pic = file
+      return true
     },
     onProgress(event, file, fileList) {
       console.log('========onProgress=========')

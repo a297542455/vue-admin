@@ -8,7 +8,7 @@
         </el-form-item>
 
         <!-- <el-form-item label="图片" prop="imgurl">
-          <Upload v-model="conceptForm.imgurl" />
+          <Upload v-model="conceptForm.imgurl" :id="createId" />
         </el-form-item> -->
 
         <el-form-item label="标签" prop="label">
@@ -94,20 +94,11 @@ import ConceptSelect from './ConceptSelect'
 import Tinymce from '@/components/Tinymce'
 import { getInfo, save, getlabellist } from '@/api/wiki/concept'
 import { getlistRelation, delRelation, saveRelation } from '@/api/wiki/relation'
+import { getId } from '@/api/public'
 import Upload from '@/components/Upload/myUpload'
 import { formatImgToArr, getNowTime } from '@/utils'
 import { validatePhone, validateEmail } from '@/utils/validate'
 import myconfig from '@/config'
-
-const defaultForm = {
-  id: '',
-  name: '',
-  label: [],
-  sui: '',
-  twoway: '0',
-  summary: '', // 文章摘要
-  content: '' // 文章内容
-}
 
 export default {
   name: 'ConceptForm',
@@ -131,7 +122,17 @@ export default {
       }
     }
     return {
-      conceptForm: Object.assign({}, defaultForm),
+      conceptForm: {},
+      createId: '',
+      defaultForm: {
+        id: '',
+        name: '',
+        label: [],
+        sui: '',
+        twoway: '0', // 是否双向词（1：是  0：否）
+        summary: '', // 文章摘要
+        content: '' // 文章内容
+      },
       loading: false,
       options: [],
       rules: {
@@ -199,10 +200,20 @@ export default {
       this.$nextTick(() => {
         this.$refs['conceptForm'].clearValidate()
         this.$refs['conceptForm'].resetFields()
-        this.conceptForm = Object.assign({}, defaultForm)
+        this.conceptForm = Object.assign({}, this.defaultForm)
       })
     },
-    handleCreate() {
+    async handleCreate() {
+      await getId()
+        .then(response => {
+          if (response.status === 1) {
+            this.createId = response.data.id
+          }
+        })
+        .catch(error => {
+          this.$message.error(error)
+          return false
+        })
       this.dialogStatus = 'create'
       this.dialogFormVisible = true
       this.currentIndex = -1
@@ -214,13 +225,15 @@ export default {
       getInfo(id).then(response => {
         if (response.status === 1) {
           const data = response.data
-          _this.conceptForm = response.data
           _this.options = []
           data.label &&
             data.label.map(o => {
               _this.options.push({ value: o, label: o })
             })
-          _this.conceptForm = response.data
+          _this.conceptForm = {
+            ...data,
+            img: formatImgToArr(data.img)
+          }
         }
       })
       const obj = {
@@ -228,28 +241,21 @@ export default {
       }
       getlistRelation(obj).then(response => {
         if (response.status === 1) {
-          // const data = response.data
           this.list = response.data.data
-          console.log(1, this.list)
         }
       })
     },
     saveData() {
       this.btnLoading = true
       this.$refs['conceptForm'].validate(valid => {
-        console.log(valid)
-        console.log(this.conceptForm)
         if (valid) {
           const _this = this
           const d = this.conceptForm
-          // if (!d.id) {
-          //   this.$delete(d, 'id')
-          // } else {
-          //   d._id = d.id
-          // }
-          d.label = d.label.join(',')
+          d.label = d.label && d.label.join(',')
+          d.imgurl = d.imgurl && d.imgurl.join(',')
           d.opposite = '[{"_id": "1", "name": "cn"}]'
           d.sui = '[{"name": "测试", "type": "cn"}]'
+          d.id = this.createId
           save(d)
             .then(response => {
               if (response.status === 1) {

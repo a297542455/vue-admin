@@ -6,6 +6,7 @@
       :on-remove="handleRemove"
       :before-upload="beforeAvatarUpload"
       :on-success="handleSuccess"
+      :file-list="fileList"
       :headers="{'x-access-token':this.$store.getters.token}"
       :action="'/upload/uploadPhotos'"
       list-type="picture-card">
@@ -29,14 +30,30 @@ export default {
   },
   data() {
     return {
-      needId: this.id,
+      picId: this.id,
       dataObj: {},
       dialogImageUrl: '',
       dialogVisible: false
     }
   },
+  computed: {
+    fileList() {
+      let a = []
+      const imgarr = []
+      if (this.value === '') {
+        return []
+      }
+      if (typeof this.value === 'string') {
+        a = this.value.split(',')
+      }
+      for (let i = 0; i < a.length; i++) {
+        imgarr.push({ url: a[i] })
+      }
+      return imgarr
+    }
+  },
   mounted() {
-    console.log('id', this.needId)
+    console.log('id', this.picId)
   },
   methods: {
     emitInput(val) {
@@ -60,9 +77,7 @@ export default {
       //   this.$message.error('上传头像图片大小不能超过 2MB!')
       // }
       // return isJPG && isLt2M
-      // console.log(file)
-      // this.dataObj = { id: '123456', pic: file }
-      if (!this.needId) {
+      if (!this.picId) {
         await getId()
           .then(response => {
             if (response.status === 1) {
@@ -72,14 +87,17 @@ export default {
           .catch(error => {
             return false
           })
-        this.dataObj.pic = file
-        return true
+      } else {
+        this.dataObj.id = this.picId
       }
+      this.dataObj.pic = file
+      return true
     },
     handleError(err, file, fileList) {
       this.$message.error(err)
     },
     handleSuccess(res, file, fileList) {
+      console.log(this.picId)
       if (res.status === 1) {
         for (let i = 0; i < fileList.length; i++) {
           if (fileList[i]['uid'] === file['uid']) {
