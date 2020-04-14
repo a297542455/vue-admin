@@ -47,7 +47,7 @@
         </el-form-item>
 
         <el-form-item prop="content" label="内容">
-          <Tinymce ref="editor" v-model="conceptForm.content" :height="300" />
+          <Tinymce ref="editor" v-model="conceptForm.content" :height="400" />
         </el-form-item>
 
         <el-form-item v-if="conceptForm.id" prop="relation" label="关系">
@@ -95,8 +95,8 @@ import Tinymce from '@/components/Tinymce'
 import { getInfo, save, getlabellist } from '@/api/wiki/concept'
 import { getlistRelation, delRelation, saveRelation } from '@/api/wiki/relation'
 import { getId } from '@/api/public'
-import Upload from '@/components/Upload/myUpload'
 import { formatImgToArr, getNowTime } from '@/utils'
+import Upload from '@/components/Upload/myUpload'
 import { validatePhone, validateEmail } from '@/utils/validate'
 import myconfig from '@/config'
 
@@ -309,15 +309,16 @@ export default {
         })
     },
     saveRelation(d) {
+      const id = this.conceptForm.id
       if (d.start_id && d.relation_id && d.end_id) {
-        saveRelation(d).then(response => {
-          if (response.status === 1) {
-            if (!d.id) {
-              d.id = response.data.id
-              console.log(d)
-            }
-          }
-        })
+        if (d.start_id == id || d.relation_id == id || d.end_id == id) {
+          saveRelation(d)
+        } else {
+          this.$message({
+            type: 'error',
+            message: '关系链中没有包含当前概念'
+          })
+        }
       }
     },
     addRelation(o) {
