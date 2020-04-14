@@ -12,7 +12,6 @@ const getters = {
   realName: state => state.user.realName,
   status: state => state.user.status,
   roles: state => state.user.roles,
-  group: state => state.user.group,
   phone: state => state.user.phone,
   email: state => state.user.email,
   permission_routers: state => state.permission.routers,

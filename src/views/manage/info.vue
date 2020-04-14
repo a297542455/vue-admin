@@ -1,8 +1,8 @@
 <template>
   <div class="app-container">
     <el-form ref="dataForm" :model="temp" label-position="left" label-width="70px" style="width: 100%; ">
-      <el-form-item label="角色" prop="groupId">
-        <el-input v-model="group" :disabled="true"/>
+      <el-form-item label="角色" prop="roles">
+        <el-input v-model="roles" :disabled="true"/>
       </el-form-item>
       <el-form-item label="账号" prop="userName">
         <el-input v-model="name" :disabled="true"/>
@@ -54,14 +54,10 @@ export default {
         accept: 'image/*',
         action: myconfig.uploadUrl.img
       }
-
     }
   },
   computed: {
-    ...mapGetters([
-      'name',
-      'group'
-    ])
+    ...mapGetters(['name', 'roles'])
   },
   watch: {
     temp: {
@@ -70,36 +66,34 @@ export default {
       deep: true
     }
   },
-  created() {
-
-  },
-  destroyed() {
-
-  },
+  created() {},
+  destroyed() {},
   methods: {
     saveData() {
       this.btnLoading = true
-      this.$refs['dataForm'].validate((valid) => {
+      this.$refs['dataForm'].validate(valid => {
         if (valid) {
           const _this = this
           const d = this.temp
-          if (typeof (d.img) === 'object') {
+          if (typeof d.img === 'object') {
             d.img = d.img.join(',')
           }
-          modify(d).then(response => {
-            if (response.status === 1) {
-              store.commit('SET_AVATAR', _this.temp.img)
-              store.commit('SET_REALNAME', _this.temp.realName)
-              store.commit('SET_PHONE', _this.temp.phone)
-              store.commit('SET_EMAIL', _this.temp.email)
-              _this.$message.success(response.msg)
-            } else {
-              _this.$message.error(response.msg)
-            }
-            _this.btnLoading = false
-          }).catch((error) => {
-            this.btnLoading = false
-          })
+          modify(d)
+            .then(response => {
+              if (response.status === 1) {
+                store.commit('SET_AVATAR', _this.temp.img)
+                store.commit('SET_REALNAME', _this.temp.realName)
+                store.commit('SET_PHONE', _this.temp.phone)
+                store.commit('SET_EMAIL', _this.temp.email)
+                _this.$message.success(response.msg)
+              } else {
+                _this.$message.error(response.msg)
+              }
+              _this.btnLoading = false
+            })
+            .catch(error => {
+              this.btnLoading = false
+            })
         } else {
           this.btnLoading = false
         }
