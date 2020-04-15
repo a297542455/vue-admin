@@ -30,8 +30,8 @@ function getParentsId(list, id, pk = 'id', pid = 'pid') {
       if (item[pk] == id) {
         tree.unshift(item[pid])
         const parent = getParentsId(list, item[pid], pk, pid)
-        if (parent.length) {
-          tree = tree.concat(parent)
+        if (parent.length && parent[0] != '0') {
+          tree = parent.concat(tree)
         }
       }
     })
