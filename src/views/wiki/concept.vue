@@ -176,8 +176,7 @@ export default {
       deleting: false,
       dateTime: '',
       pickerOptions: pickerOptions,
-      currentIndex: -1,
-      isEdit: false
+      currentIndex: -1
     }
   },
   watch: {

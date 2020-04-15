@@ -59,6 +59,8 @@ export default {
           })
           this.loading = false
         })
+      } else {
+        this.options = [];
       }
     },
   }

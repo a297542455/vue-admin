@@ -7,6 +7,11 @@
           <el-input v-model="conceptForm.name" :maxlength="100" name="name" required />
         </el-form-item>
 
+        <el-form-item label="摘要" prop="summary">
+          <el-input v-model="conceptForm.summary" :rows="1" :maxlength="100" type="textarea" class="article-textarea" autosize placeholder="摘要" />
+          <!-- <span v-show="contentShortLength" class="word-counter">剩余 {{ 100 - contentShortLength }} 字符</span> -->
+        </el-form-item>
+
         <!-- <el-form-item label="图片" prop="imgurl">
           <Upload v-model="conceptForm.imgurl" :id="createId" />
         </el-form-item> -->
@@ -30,6 +35,33 @@
           </el-select>
         </el-form-item>
 
+        <!-- <el-form-item v-if="conceptForm.label" label="" style="">
+          <el-button v-for="(o,i) in conceptForm.label" :key="i" size="small" @click="labelChange(o)">{{ o }}</el-button>
+        </el-form-item> -->
+
+        <el-form-item label="模版">
+          <!-- <ConceptSelect v-model="tempData.value" @changObj="changTempObj(arguments[0],tempData)" /> -->
+          <el-select
+            v-model="tempValue"
+            :remote-method="remoteMethod2"
+            :loading="loading"
+            filterable
+            remote
+            reserve-keyword
+            placeholder="选择后会使用新的模版"
+            style="width:100%"
+            @change="tempChange">
+            <el-option
+              v-for="item in labelOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item v-for="(o,i) in conceptForm.node_des" :key="i" :label="o.name">
+          <el-input v-model="o.content" />
+        </el-form-item>
+
         <!-- <el-form-item label="别名(功能预留)">
           <el-input v-model="conceptForm.sui" :maxlength="100" name="name" required />
         </el-form-item> -->
@@ -41,13 +73,8 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="摘要" prop="summary">
-          <el-input v-model="conceptForm.summary" :rows="1" :maxlength="100" type="textarea" class="article-textarea" autosize placeholder="摘要" />
-          <!-- <span v-show="contentShortLength" class="word-counter">剩余 {{ 100 - contentShortLength }} 字符</span> -->
-        </el-form-item>
-
         <el-form-item prop="content" label="内容">
-          <Tinymce ref="editor" v-model="conceptForm.content" :height="400" />
+          <Tinymce v-if="showTinymce" ref="editor" v-model="conceptForm.content" :height="400" :create-id="createId" />
         </el-form-item>
 
         <el-form-item v-if="conceptForm.id" prop="relation" label="关系">
@@ -94,21 +121,18 @@ import ConceptSelect from './ConceptSelect'
 import Tinymce from '@/components/Tinymce'
 import { getInfo, save, getlabellist } from '@/api/wiki/concept'
 import { getlistRelation, delRelation, saveRelation } from '@/api/wiki/relation'
+import * as labelApi from '@/api/wiki/label'
 import { getId } from '@/api/public'
-import { formatImgToArr, getNowTime } from '@/utils'
+import { formatImgToArr, getNowTime, deepClone } from '@/utils'
 import Upload from '@/components/Upload/myUpload'
 import { validatePhone, validateEmail } from '@/utils/validate'
 import myconfig from '@/config'
 
+const getLabelInfo = labelApi.getInfo
+
 export default {
   name: 'ConceptForm',
   components: { Upload, Tinymce, ConceptSelect },
-  props: {
-    isEdit: {
-      type: Boolean,
-      default: false
-    }
-  },
   data() {
     const validateRequire = (rule, value, callback) => {
       if (value === '') {
@@ -122,12 +146,18 @@ export default {
       }
     }
     return {
+      showTinymce: false,
+      tempValue: '',
+      labelOptions: [],
+      labelIndex: '',
+      labelTemp: {},
       conceptForm: {},
       createId: '',
       defaultForm: {
         id: '',
         name: '',
         label: [],
+        node_des: [],
         sui: '',
         twoway: '0', // 是否双向词（1：是  0：否）
         summary: '', // 文章摘要
@@ -175,19 +205,63 @@ export default {
     }
   },
   watch: {
-    dialogFormVisible: function() {
-      this.resetTemp()
+    dialogFormVisible: function(val, oldVal) {
+      // console.log("resetTemp")
+      if (!val) {
+        this.resetTemp(val)
+      } else {
+        this.$nextTick(() => {
+          this.showTinymce = val
+        })
+      }
     }
   },
   created() {},
   destroyed() {},
   methods: {
+    resetTemp(val) {
+      this.tempValue = ''
+      this.labelOptions = []
+      this.$nextTick(() => {
+        if (this.$refs['conceptForm']) {
+          this.$refs['conceptForm'].clearValidate()
+          this.$refs['conceptForm'].resetFields()
+        }
+        this.conceptForm = Object.assign({}, this.defaultForm)
+        // console.log("showTinymce")
+        this.showTinymce = val
+      })
+    },
+    labelChange(val) {
+      this.labelTemp = this.options.find(o => o.value === val)
+    },
+    tempChange(id) {
+      getLabelInfo(id).then(response => {
+        if (response.status === 1) {
+          this.conceptForm.node_des = response.data.temp
+        }
+      })
+    },
+    remoteMethod2(keyword) {
+      if (keyword !== '') {
+        this.loading = true
+        getlabellist({ keyword }).then(response => {
+          const data = response.data.data
+          this.labelOptions = data.map((o, i) => {
+            return { value: `${o.id}`, label: `${o.name}` }
+          })
+          this.loading = false
+        })
+      } else {
+        this.labelOptions = []
+      }
+    },
     remoteMethod(keyword) {
       if (keyword !== '') {
         this.loading = true
         getlabellist({ keyword }).then(response => {
           const data = response.data.data
-          this.options = data.map(o => {
+          this.options = data.map((o, i) => {
             return { value: `${o.name}`, label: `${o.name}` }
           })
           this.loading = false
@@ -195,13 +269,6 @@ export default {
       } else {
         this.options = []
       }
-    },
-    resetTemp() {
-      this.$nextTick(() => {
-        this.$refs['conceptForm'].clearValidate()
-        this.$refs['conceptForm'].resetFields()
-        this.conceptForm = Object.assign({}, this.defaultForm)
-      })
     },
     async handleCreate() {
       await getId()
@@ -218,11 +285,10 @@ export default {
       this.dialogFormVisible = true
       this.currentIndex = -1
     },
-    handleUpdate(id) {
+    async handleUpdate(id) {
       this.dialogStatus = 'update'
-      this.dialogFormVisible = true
       const _this = this
-      getInfo(id).then(response => {
+      await getInfo(id).then(response => {
         if (response.status === 1) {
           const data = response.data
           _this.options = []
@@ -239,23 +305,26 @@ export default {
       const obj = {
         start_id: id
       }
-      getlistRelation(obj).then(response => {
+      await getlistRelation(obj).then(response => {
         if (response.status === 1) {
           this.list = response.data.data
         }
       })
+      // console.log("handleUpdate")
+      this.dialogFormVisible = true
     },
     saveData() {
       this.btnLoading = true
       this.$refs['conceptForm'].validate(valid => {
         if (valid) {
           const _this = this
-          const d = this.conceptForm
+          const d = deepClone(this.conceptForm)
           d.label = d.label && d.label.join(',')
           d.imgurl = d.imgurl && d.imgurl.join(',')
+          d.node_des = JSON.stringify(d.node_des)
           d.opposite = '[{"_id": "1", "name": "cn"}]'
           d.sui = '[{"name": "测试", "type": "cn"}]'
-          d.id = this.createId
+          d.id = d.id ? d.id : this.createId
           save(d)
             .then(response => {
               if (response.status === 1) {
@@ -328,7 +397,7 @@ export default {
       o[prop + '_id'] = changeObj.value
       o[prop + '_name'] = changeObj.label
       this.saveRelation(o)
-    }
+    },
   }
 }
 </script>

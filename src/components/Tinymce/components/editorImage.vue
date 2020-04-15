@@ -12,9 +12,9 @@
         :on-success="handleSuccess"
         :before-upload="beforeUpload"
         :headers="{'x-access-token':this.$store.getters.token}"
-        :data="data"
+        :data="dataObj"
         class="editor-slide-upload"
-        action="http://wiki.geehealth.cn:8080/upload/uploadPhotos"
+        action="/upload/uploadPhotos"
         list-type="picture-card"
       >
         <el-button size="small" type="primary">点击上传</el-button>
@@ -27,6 +27,7 @@
 
 <script>
 // import { getToken } from 'api/qiniu'
+import { getId } from '@/api/public'
 
 export default {
   name: 'EditorSlideUpload',
@@ -34,12 +35,17 @@ export default {
     color: {
       type: String,
       default: '#1890ff'
+    },
+    createId: {
+      type: String,
+      default: ''
     }
   },
   data() {
     return {
+      picId: this.createId,
       dialogVisible: false,
-      data: {},
+      dataObj: {},
       listObj: {},
       fileList: []
     }
@@ -84,17 +90,27 @@ export default {
         }
       }
     },
-    beforeUpload(file) {
+    async beforeUpload(file) {
+      if (!this.picId) {
+        await getId()
+          .then(response => {
+            if (response.status === 1) {
+              this.dataObj.id = response.data.id
+            }
+          })
+          .catch(error => {
+            return false
+          })
+      } else {
+        this.dataObj.id = this.picId
+      }
+      this.dataObj.pic = file
       const _self = this
       const _URL = window.URL || window.webkitURL
       const fileName = file.uid
       this.listObj[fileName] = {}
-      this.data = {
-        pic: file,
-        id: ''
-      }
-      console.log('file', file)
-      console.log('listObj', this.listObj)
+      // console.log('file', file)
+      // console.log('listObj', this.listObj)
       return new Promise((resolve, reject) => {
         const img = new Image()
         img.src = _URL.createObjectURL(file)

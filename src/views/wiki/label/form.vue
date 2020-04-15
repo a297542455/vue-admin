@@ -1,6 +1,9 @@
 <template>
-  <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" :close-on-click-modal="false">
-    <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="120px" style="width: 100%; height: 50vh;overflow-y: scroll;">
+  <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" :close-on-click-modal="false" destroy-on-close fullscreen>
+    <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="120px">
+      <el-form-item label="标签" prop="name">
+        <el-input v-model="temp.name" clearable/>
+      </el-form-item>
       <el-form-item label="上级" prop="pids">
         <el-select
           v-model="temp.pids"
@@ -19,8 +22,31 @@
             :value="item.value" />
         </el-select>
       </el-form-item>
-      <el-form-item label="标签名称" prop="name">
-        <el-input v-model="temp.name" clearable/>
+      <el-form-item prop="temp" label="额外信息">
+        <el-card class="box-card">
+          <div slot="header" class="clearfix">
+            <el-row>
+              <el-col>
+                <el-button type="primary" size="small" icon="el-icon-plus" @click="addTemp">增加信息</el-button>
+              </el-col>
+            </el-row>
+          </div>
+
+          <el-row v-for="(o,i) in temp.temp" :gutter="20" :key="i" style="text-align:center">
+            <el-col :span="3">
+              <el-input v-model="o.name" clearable placeholder="标题"/>
+            </el-col>
+            <el-col :span="8">
+              <el-input v-model="o.content" clearable placeholder="内容"/>
+            </el-col>
+            <el-col :span="1">
+              <el-button type="danger" size="small" icon="el-icon-delete" @click="handleDelete(i)"></el-button>
+            </el-col>
+          </el-row>
+        </el-card>
+      </el-form-item>
+      <el-form-item prop="sortCode" label="排序">
+        <el-input v-model="temp.sortCode" clearable/>
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
@@ -32,9 +58,10 @@
 
 <script>
 import { getlist, getInfo, save } from '@/api/wiki/label'
+import Tinymce from '@/components/Tinymce'
 export default {
   name: 'LabelsForm',
-  components: {},
+  components: { Tinymce },
   props: {
     labelList: {
       type: Array,
@@ -44,13 +71,18 @@ export default {
   data() {
     return {
       value: [],
+      list: [],
       options: [],
       loading: false,
       btnLoading: false,
-      temp: {
+      temp: {},
+      defaultForm: {
         id: '',
         pids: [],
-        name: ''
+        name: '',
+        sortCode: 1, // 排序
+        temp: [], // 基础模板
+        content: '' // 详情模板
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -68,11 +100,6 @@ export default {
     dialogFormVisible: function() {
       this.resetTemp()
     },
-    temp: {
-      handler(newVal, oldVal) {},
-      immediate: true,
-      deep: true
-    }
   },
   created() {},
   destroyed() {},
@@ -92,22 +119,18 @@ export default {
       }
     },
     resetTemp() {
-      this.temp = {
-        id: '',
-        pids: [],
-        name: ''
-      }
-      this.options = []
-    },
-    handleCreate() {
-      this.resetTemp()
-      this.dialogStatus = 'create'
-      this.dialogFormVisible = true
-      this.currentIndex = -1
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
         this.$refs['dataForm'].resetFields()
+        this.temp = (Object.assign({}, this.defaultForm))
       })
+      this.options = []
+      this.list = []
+    },
+    handleCreate() {
+      this.dialogStatus = 'create'
+      this.dialogFormVisible = true
+      this.currentIndex = -1
     },
     handleUpdate(id) {
       this.dialogStatus = 'update'
@@ -116,8 +139,10 @@ export default {
       getInfo(id).then(response => {
         if (response.status === 1) {
           const data = response.data
-          _this.temp.id = data.id
-          _this.temp.name = data.name
+          _this.temp = {
+            ...data,
+            temp: JSON.stringify(data.temp) === '{}' ? [] : data.temp
+          }
           _this.temp.pids = []
           _this.options = []
           data.pdata.map(o => {
@@ -125,9 +150,6 @@ export default {
             _this.temp.pids.push(o.pid)
           })
         }
-      })
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
       })
     },
     saveData() {
@@ -137,7 +159,8 @@ export default {
           const _this = this
           const d = {
             ...this.temp,
-            pids: this.temp.pids.join(',')
+            temp: JSON.stringify(this.temp.temp),
+            pids: this.temp.pids.join(','),
           }
           if (!d.id) {
             this.$delete(d, 'id')
@@ -163,7 +186,22 @@ export default {
           this.btnLoading = false
         }
       })
-    }
+    },
+    handleDelete(index) {
+      this.temp.temp.splice(index, 1)
+    },
+    addTemp(o) {
+      this.temp.temp.push({ name: '', content: '' })
+    },
   }
 }
 </script>
+
+<style rel="stylesheet/scss" lang="scss" scoped>
+.el-row {
+  margin-bottom: 10px;
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+</style>
