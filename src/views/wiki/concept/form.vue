@@ -77,8 +77,8 @@
           <Tinymce v-if="showTinymce" ref="editor" v-model="conceptForm.content" :height="400" :create-id="createId" />
         </el-form-item>
 
-        <el-form-item v-if="conceptForm.id" prop="relation" label="关系">
-          <el-card class="box-card">
+        <el-form-item prop="relation" label="关系">
+          <el-card v-if="conceptForm.id" class="box-card">
             <div slot="header" class="clearfix">
               <el-row type="flex" justify="space-around" style="text-align:center">
                 <el-col>开始节点</el-col>
@@ -104,6 +104,9 @@
                 <el-button type="danger" size="small" icon="el-icon-delete" @click="handleDelete(i,o.id)"></el-button>
               </el-col>
             </el-row>
+          </el-card>
+          <el-card v-else class="box-card">
+            新增概念时，需先保存当前概念才能添加关系
           </el-card>
         </el-form-item>
 
@@ -303,7 +306,7 @@ export default {
         }
       })
       const obj = {
-        start_id: id
+        id
       }
       await getlistRelation(obj).then(response => {
         if (response.status === 1) {

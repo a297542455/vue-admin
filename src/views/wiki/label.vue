@@ -155,8 +155,8 @@ export default {
     },
     updateRow(temp) {
       const { relatePids } = temp
-      console.log(relatePids, "relatePids")
-      console.log(temp, "temp")
+      // console.log(relatePids, "relatePids")
+      // console.log(temp, "temp")
       if (relatePids && !relatePids.length) {
         this.fetchList()
         return

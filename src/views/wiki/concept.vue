@@ -62,7 +62,7 @@
 
     <!-- 表格 -->
     <el-row :gutter="20">
-      <el-col :span="6">
+      <el-col :span="12">
         <el-table
           v-loading="listLoading"
           ref="table"
@@ -74,6 +74,7 @@
           highlight-current-row
           row-key="id"
           lazy
+          style="height: 75vh;overflow:auto"
           @row-click="rowClick"
           @selection-change="handleSelectionChange">
           <el-table-column label="姓名">
@@ -84,7 +85,7 @@
         </el-table>
       </el-col>
 
-      <el-col :span="18">
+      <el-col :span="12">
         <el-table
           v-loading="conceptlistLoading"
           :data="conceptList"
@@ -92,7 +93,7 @@
           border
           fit
           highlight-current-row
-          style="width: 100%;">
+          style="height: 75vh;overflow:auto">
           <el-table-column label="名称">
             <template slot-scope="scope">
               <span>{{ scope.row.name }}</span>
