@@ -18,6 +18,7 @@
           <el-option
             v-for="item in options"
             :key="item.value"
+            :disabled="item.disabled"
             :label="item.label"
             :value="item.value" />
         </el-select>
@@ -106,7 +107,7 @@ export default {
     }
   },
   mounted() {
-    this.temp = deepClone(this.defaultForm)
+    // this.temp = deepClone(this.defaultForm)
   },
   created() {},
   destroyed() {},
@@ -117,6 +118,7 @@ export default {
         getlist({ keyword }).then(response => {
           const data = response.data.data
           this.options = data.map(o => {
+            if (o.id === this.temp.id) return { value: `${o.id}`, label: `${o.name}(禁止选择自己作为上级)`, disabled: true }
             return { value: `${o.id}`, label: `${o.name}` }
           })
           this.loading = false
@@ -126,16 +128,17 @@ export default {
       }
     },
     resetTemp(val) {
+      this.options = []
       this.relatePids = []
       this.$nextTick(() => {
         if (this.$refs['dataForm']) {
           this.$refs['dataForm'].clearValidate()
           this.$refs['dataForm'].resetFields()
         }
-        // console.log("showTinymce")
       })
     },
     handleCreate() {
+      this.temp = deepClone(this.defaultForm)
       this.dialogStatus = 'create'
       this.dialogFormVisible = true
       this.currentIndex = -1

@@ -48,12 +48,8 @@
 
       <el-table-column label="操作" align="center" width="120px" class-name="small-padding">
         <template slot-scope="scope">
-          <el-tooltip content="编辑" placement="top">
-            <el-button v-waves type="primary" icon="el-icon-edit-outline" circle @click="handleUpdate(scope.$index,scope.row.id)"/>
-          </el-tooltip>
-          <el-tooltip content="删除" placement="top">
-            <el-button v-waves :loading="scope.row.delete" type="danger" icon="el-icon-delete" circle @click="handleDelete(scope.$index,scope.row.id)"/>
-          </el-tooltip>
+          <el-button v-waves type="primary" icon="el-icon-edit-outline" circle @click="handleUpdate(scope.$index,scope.row.id)"/>
+          <el-button v-waves :loading="scope.row.delete" type="danger" icon="el-icon-delete" circle @click="handleDelete(scope.$index,scope.row.id)"/>
         </template>
       </el-table-column>
     </el-table>
@@ -115,6 +111,8 @@ export default {
   },
   methods: {
     load(tree, treeNode, resolve) {
+      console.table(tree)
+      console.table(treeNode)
       const obj = {
         ...this.listQuery,
         pid: tree.id
@@ -157,6 +155,12 @@ export default {
     },
     updateRow(temp) {
       const { relatePids } = temp
+      console.log(relatePids, "relatePids")
+      console.log(temp, "temp")
+      if (relatePids && !relatePids.length) {
+        this.fetchList()
+        return
+      }
       relatePids.map(o => {
         const obj = {
           ...this.listQuery,
