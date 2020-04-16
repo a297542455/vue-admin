@@ -121,7 +121,7 @@ export default {
         id: '',
         title: '',
         status: 1,
-        lbdata: '',
+        lbdata: [],
         rules: ''
       }
     },

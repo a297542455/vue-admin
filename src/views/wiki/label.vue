@@ -33,11 +33,11 @@
       :data="list"
       :load="load"
       :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+      row-key="id"
       border
       fit
       highlight-current-row
       style="width: 100%;"
-      row-key="id"
       lazy
       @selection-change="handleSelectionChange">
       <el-table-column label="姓名">
@@ -106,7 +106,6 @@ export default {
       },
       buttonDisabled: true,
       deleting: false,
-      currentRow: {}
     }
   },
   computed: {},
@@ -157,7 +156,18 @@ export default {
       this.$refs.fromRules.handleUpdate(id)
     },
     updateRow(temp) {
-      this.fetchList()
+      const { relatePids } = temp
+      relatePids.map(o => {
+        const obj = {
+          ...this.listQuery,
+          pid: o
+        }
+        getlist(obj).then(response => {
+          if (response.status === 1) {
+            this.$set(this.$refs.table.store.states.lazyTreeNodeMap, o, response.data.data)
+          }
+        })
+      })
     },
     handleDelete(index, id) {
       const _this = this

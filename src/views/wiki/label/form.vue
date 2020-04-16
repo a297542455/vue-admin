@@ -59,6 +59,7 @@
 <script>
 import { getlist, getInfo, save } from '@/api/wiki/label'
 import Tinymce from '@/components/Tinymce'
+import { deepClone } from '@/utils'
 export default {
   name: 'LabelsForm',
   components: { Tinymce },
@@ -84,6 +85,7 @@ export default {
         temp: [], // 基础模板
         content: '' // 详情模板
       },
+      relatePids: [],
       dialogFormVisible: false,
       dialogStatus: '',
       textMap: {
@@ -97,9 +99,14 @@ export default {
   },
   computed: {},
   watch: {
-    dialogFormVisible: function() {
-      this.resetTemp()
-    },
+    dialogFormVisible: function(val, oldVal) {
+      if (!val) {
+        this.resetTemp(val)
+      }
+    }
+  },
+  mounted() {
+    this.temp = deepClone(this.defaultForm)
   },
   created() {},
   destroyed() {},
@@ -118,49 +125,59 @@ export default {
         this.options = []
       }
     },
-    resetTemp() {
+    resetTemp(val) {
+      this.relatePids = []
       this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-        this.$refs['dataForm'].resetFields()
-        this.temp = (Object.assign({}, this.defaultForm))
+        if (this.$refs['dataForm']) {
+          this.$refs['dataForm'].clearValidate()
+          this.$refs['dataForm'].resetFields()
+        }
+        // console.log("showTinymce")
       })
-      this.options = []
-      this.list = []
     },
     handleCreate() {
       this.dialogStatus = 'create'
       this.dialogFormVisible = true
       this.currentIndex = -1
     },
-    handleUpdate(id) {
+    async handleUpdate(id) {
       this.dialogStatus = 'update'
-      this.dialogFormVisible = true
       const _this = this
-      getInfo(id).then(response => {
+      await getInfo(id).then(response => {
         if (response.status === 1) {
           const data = response.data
           _this.temp = {
             ...data,
-            temp: JSON.stringify(data.temp) === '{}' ? [] : data.temp
+            pids: [],
+            temp: !data.temp || JSON.stringify(data.temp) === '{}' ? [] : data.temp
           }
-          _this.temp.pids = []
           _this.options = []
           data.pdata.map(o => {
             _this.options.push({ value: `${o.pid}`, label: `${o.pname}` })
             _this.temp.pids.push(o.pid)
+            _this.relatePids.push(o.pid)
           })
         }
       })
+      this.dialogFormVisible = true
     },
     saveData() {
       this.btnLoading = true
       this.$refs['dataForm'].validate(valid => {
         if (valid) {
+          const arr = [...this.temp.pids]
+          arr.map(o => {
+            if (!this.relatePids.includes(o)) {
+              this.relatePids.push(o)
+            }
+          })
           const _this = this
           const d = {
             ...this.temp,
+            pdata: JSON.stringify(this.temp.pdata), //  其实后台不要,免得到时候要了,先留着
             temp: JSON.stringify(this.temp.temp),
             pids: this.temp.pids.join(','),
+            relatePids: this.relatePids, //  主要作用不是传给后台,是传递回上级的表格树组件寻找关联id
           }
           if (!d.id) {
             this.$delete(d, 'id')
@@ -169,7 +186,7 @@ export default {
             .then(response => {
               if (response.status === 1) {
                 if (!d.id) {
-                  d.id = response.data
+                  d.id = response.data.id
                 }
                 this.$emit('updateRow', d)
                 _this.dialogFormVisible = false
