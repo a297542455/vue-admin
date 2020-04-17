@@ -401,7 +401,7 @@ export default {
             .then(response => {
               if (response.status === 1) {
                 if (!d.id) {
-                  d.id = response.data._id
+                  d.id = response.data.id
                 }
                 // todo
                 this.$emit('updateRow', d)
