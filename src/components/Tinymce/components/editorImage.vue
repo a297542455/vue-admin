@@ -14,7 +14,7 @@
         :headers="{'x-access-token':this.$store.getters.token}"
         :data="dataObj"
         class="editor-slide-upload"
-        action="/upload/uploadPhotos"
+        action="http://wiki.geehealth.cn:8080/upload/uploadPhotos"
         list-type="picture-card"
       >
         <el-button size="small" type="primary">点击上传</el-button>

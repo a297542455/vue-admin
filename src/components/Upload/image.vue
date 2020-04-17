@@ -16,7 +16,7 @@
       :on-error="handleError"
       :on-remove="handleRemove"
       :headers="{'x-access-token':this.$store.getters.token}"
-      :action="'/upload/uploadPhotos'"
+      action="http://wiki.geehealth.cn:8080/upload/uploadPhotos"
       class="image-uploader"
       list-type="picture-card">
       <i class="el-icon-plus"/>

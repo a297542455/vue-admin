@@ -6,7 +6,7 @@ const resolve = dir => {
 
 // 项目部署目录，相对于根目录
 const BASE_URL = process.env.NODE_ENV === 'production'
-  ? ''
+  ? 'http://wiki.geehealth.cn:8080'
   : 'http://wiki.geehealth.cn:8080'
 
 // 项目部署目录，相对于根目录
@@ -36,7 +36,7 @@ module.exports = {
         }
       },
       '/': {
-        target: BASE_URL, // 设置你调用的接口域名和端口号 别忘了加http
+        target: 'http://wiki.geehealth.cn:8080', // 设置你调用的接口域名和端口号 别忘了加http
         changeOrigin: true,
         pathRewrite: {
           '^/': ''

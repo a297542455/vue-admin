@@ -14,7 +14,7 @@ export default {
 
   // api请求基础路径,注意和代理配合使用
   baseUrl: {
-    dev: '',
+    dev: 'http://wiki.geehealth.cn:8080',
     pro: 'http://wiki.geehealth.cn:8080'
   },
 

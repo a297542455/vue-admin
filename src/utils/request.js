@@ -11,7 +11,7 @@ const baseURL = process.env.NODE_ENV === 'production'
 
 // create an axios instance
 const service = axios.create({
-  baseURL: baseURL, // api 的 base_url
+  baseURL: 'http://wiki.geehealth.cn:8080', // api 的 base_url
   timeout: 10000, // request timeout,
   headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8' }
 })
