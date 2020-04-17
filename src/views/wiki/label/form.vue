@@ -129,7 +129,13 @@ export default {
         getlist({ keyword }).then(response => {
           const data = response.data.data
           this.options = data.map(o => {
-            if (o.id === this.temp.id) return { value: `${o.id}`, label: `${o.name}(禁止选择自己作为上级)`, disabled: true }
+            if (o.id === this.temp.id) {
+              return {
+                value: `${o.id}`,
+                label: `${o.name}(禁止选择自己作为上级)`,
+                disabled: true
+              }
+            }
             return { value: `${o.id}`, label: `${o.name}` }
           })
           this.loading = false
@@ -151,7 +157,6 @@ export default {
       })
     },
     async handleCreate() {
-      console.log("handleCreate")
       await getId()
         .then(response => {
           if (response.status === 1) {
@@ -162,6 +167,7 @@ export default {
           this.$message.error(error)
           return false
         })
+      this.temp = Object.assign({}, this.defaultForm)
       this.dialogStatus = 'create'
       this.dialogFormVisible = true
       this.currentIndex = -1
@@ -175,7 +181,8 @@ export default {
           _this.temp = {
             ...data,
             pids: [],
-            temp: !data.temp || JSON.stringify(data.temp) === '{}' ? [] : data.temp
+            temp:
+              !data.temp || JSON.stringify(data.temp) === '{}' ? [] : data.temp
           }
           _this.options = []
           data.pdata.map(o => {
@@ -203,8 +210,9 @@ export default {
             pdata: JSON.stringify(this.temp.pdata), //  其实后台不要,免得到时候要了,先留着
             temp: JSON.stringify(this.temp.temp),
             pids: this.temp.pids.join(','),
-            relatePids: this.relatePids, //  主要作用不是传给后台,是传递回上级的表格树组件寻找关联id
+            relatePids: this.relatePids //  主要作用不是传给后台,是传递回上级的表格树组件寻找关联id
           }
+          // d.id = ''
           d.id = d.id ? d.id : this.createId
           save(d)
             .then(response => {
@@ -232,8 +240,9 @@ export default {
       this.temp.temp.splice(index, 1)
     },
     addTemp(o) {
+      console.log(this.temp)
       this.temp.temp.push({ name: '', content: '' })
-    },
+    }
   }
 }
 </script>

@@ -39,8 +39,32 @@
           <el-button v-for="(o,i) in conceptForm.label" :key="i" size="small" @click="labelChange(o)">{{ o }}</el-button>
         </el-form-item> -->
 
+        <el-form-item label="双向" prop="twoway">
+          <el-select v-model="conceptForm.twoway" placeholder="是否双向词" clearable size="small" required>
+            <el-option label="是" value="1"/>
+            <el-option label="否" value="0"/>
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="反向" prop="opposite">
+          <el-select
+            v-model="oppositeValue"
+            :remote-method="remoteMethod3"
+            :loading="loading"
+            filterable
+            remote
+            reserve-keyword
+            placeholder="反向"
+            @change="oppositeChange">
+            <el-option
+              v-for="item in oppositeOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value" />
+          </el-select>
+        </el-form-item>
+
         <el-form-item label="模版">
-          <!-- <ConceptSelect v-model="tempData.value" @changObj="changTempObj(arguments[0],tempData)" /> -->
           <el-select
             v-model="tempValue"
             :remote-method="remoteMethod2"
@@ -49,7 +73,6 @@
             remote
             reserve-keyword
             placeholder="选择后会使用新的模版"
-            style="width:100%"
             @change="tempChange">
             <el-option
               v-for="item in labelOptions"
@@ -65,13 +88,6 @@
         <!-- <el-form-item label="别名(功能预留)">
           <el-input v-model="conceptForm.sui" :maxlength="100" name="name" required />
         </el-form-item> -->
-
-        <el-form-item label="双向" prop="twoway">
-          <el-select v-model="conceptForm.twoway" placeholder="是否双向词" clearable size="small" required>
-            <el-option label="是" value="1"/>
-            <el-option label="否" value="0"/>
-          </el-select>
-        </el-form-item>
 
         <el-form-item prop="content" label="内容">
           <Tinymce v-if="showTinymce" ref="editor" v-model="conceptForm.content" :height="400" :create-id="createId" />
@@ -150,9 +166,11 @@ export default {
     }
     return {
       showTinymce: false,
-      tempValue: '',
+      oppositeValue: '',
+      oppositeOptions: [],
       labelOptions: [],
       labelIndex: '',
+      tempValue: '',
       labelTemp: {},
       conceptForm: {},
       createId: '',
@@ -162,6 +180,7 @@ export default {
         label: [],
         node_des: [],
         sui: '',
+        opposite: '', // 反向
         twoway: '0', // 是否双向词（1：是  0：否）
         summary: '', // 文章摘要
         content: '' // 文章内容
@@ -224,6 +243,8 @@ export default {
   methods: {
     resetTemp(val) {
       this.tempValue = ''
+      this.oppositeValue = ''
+      this.oppositeOptions = []
       this.labelOptions = []
       this.$nextTick(() => {
         if (this.$refs['conceptForm']) {
@@ -238,12 +259,30 @@ export default {
     labelChange(val) {
       this.labelTemp = this.options.find(o => o.value === val)
     },
-    tempChange(id) {
-      getLabelInfo(id).then(response => {
+    async tempChange(id) {
+      this.showTinymce = false
+      await getLabelInfo(id).then(response => {
         if (response.status === 1) {
+          this.$set(this.conceptForm, 'content', response.data.content)
           this.$set(this.conceptForm, 'node_des', response.data.temp)
         }
       })
+      this.showTinymce = true
+    },
+    oppositeChange(value) {},
+    remoteMethod3(keyword) {
+      if (keyword !== '') {
+        this.loading = true
+        getlabellist({ keyword }).then(response => {
+          const data = response.data.data
+          this.oppositeOptions = data.map((o, i) => {
+            return { value: `${o.id}`, label: `${o.name}` }
+          })
+          this.loading = false
+        })
+      } else {
+        this.oppositeOptions = []
+      }
     },
     remoteMethod2(keyword) {
       if (keyword !== '') {
@@ -295,6 +334,12 @@ export default {
         if (response.status === 1) {
           const data = response.data
           _this.options = []
+          const obj = {
+            value: data.opposite[0]._id,
+            label: data.opposite[0].name
+          }
+          this.oppositeOptions = [obj]
+          this.oppositeValue = data.opposite[0]._id
           data.label &&
             data.label.map(o => {
               _this.options.push({ value: o, label: o })
@@ -319,13 +364,25 @@ export default {
     saveData() {
       this.btnLoading = true
       this.$refs['conceptForm'].validate(valid => {
+        // const obj = this.oppositeOptions.find(o => o.value === value) || {}
+        // const sentObj = {
+        //   id: obj.value,
+        //   label: obj.label
+        // }
+        // this.$set(this.conceptForm, 'opposite', JSON.stringify([sentObj]))
         if (valid) {
           const _this = this
           const d = deepClone(this.conceptForm)
           d.label = d.label && d.label.join(',')
           d.imgurl = d.imgurl && d.imgurl.join(',')
           d.node_des = JSON.stringify(d.node_des)
-          d.opposite = '[{"_id": "1", "name": "cn"}]'
+          const obj =
+            this.oppositeOptions.find(o => o.value === this.oppositeValue) || {}
+          const sentObj = {
+            _id: obj.value,
+            name: obj.label
+          }
+          d.opposite = JSON.stringify([sentObj])
           d.sui = '[{"name": "测试", "type": "cn"}]'
           d.id = d.id ? d.id : this.createId
           save(d)
@@ -400,7 +457,7 @@ export default {
       o[prop + '_id'] = changeObj.value
       o[prop + '_name'] = changeObj.label
       this.saveRelation(o)
-    },
+    }
   }
 }
 </script>
