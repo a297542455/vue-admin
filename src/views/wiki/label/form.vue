@@ -23,7 +23,10 @@
             :value="item.value" />
         </el-select>
       </el-form-item>
-      <el-form-item prop="temp" label="额外信息">
+      <el-form-item prop="content" label="模版内容">
+        <Tinymce v-if="showTinymce" ref="editor" v-model="temp.content" :height="400" :create-id="createId" />
+      </el-form-item>
+      <el-form-item prop="temp" label="模版信息">
         <el-card class="box-card">
           <div slot="header" class="clearfix">
             <el-row>
@@ -60,6 +63,7 @@
 <script>
 import { getlist, getInfo, save } from '@/api/wiki/label'
 import Tinymce from '@/components/Tinymce'
+import { getId } from '@/api/public'
 import { deepClone } from '@/utils'
 export default {
   name: 'LabelsForm',
@@ -72,6 +76,8 @@ export default {
   },
   data() {
     return {
+      showTinymce: false,
+      createId: '',
       value: [],
       list: [],
       options: [],
@@ -101,8 +107,13 @@ export default {
   computed: {},
   watch: {
     dialogFormVisible: function(val, oldVal) {
+      // console.log("resetTemp")
       if (!val) {
         this.resetTemp(val)
+      } else {
+        this.$nextTick(() => {
+          this.showTinymce = val
+        })
       }
     }
   },
@@ -135,10 +146,22 @@ export default {
           this.$refs['dataForm'].clearValidate()
           this.$refs['dataForm'].resetFields()
         }
+        this.temp = Object.assign({}, this.defaultForm)
+        this.showTinymce = val
       })
     },
-    handleCreate() {
-      this.temp = deepClone(this.defaultForm)
+    async handleCreate() {
+      console.log("handleCreate")
+      await getId()
+        .then(response => {
+          if (response.status === 1) {
+            this.createId = response.data.id
+          }
+        })
+        .catch(error => {
+          this.$message.error(error)
+          return false
+        })
       this.dialogStatus = 'create'
       this.dialogFormVisible = true
       this.currentIndex = -1
@@ -176,20 +199,18 @@ export default {
           })
           const _this = this
           const d = {
-            ...this.temp,
+            ...deepClone(this.temp),
             pdata: JSON.stringify(this.temp.pdata), //  其实后台不要,免得到时候要了,先留着
             temp: JSON.stringify(this.temp.temp),
             pids: this.temp.pids.join(','),
             relatePids: this.relatePids, //  主要作用不是传给后台,是传递回上级的表格树组件寻找关联id
           }
-          if (!d.id) {
-            this.$delete(d, 'id')
-          }
+          d.id = d.id ? d.id : this.createId
           save(d)
             .then(response => {
               if (response.status === 1) {
                 if (!d.id) {
-                  d.id = response.data.id
+                  d.id = response.data._id
                 }
                 this.$emit('updateRow', d)
                 _this.dialogFormVisible = false
