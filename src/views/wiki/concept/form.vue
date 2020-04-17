@@ -257,6 +257,7 @@ export default {
     resetTemp(val) {
       this.tempValue = ''
       this.oppositeValue = ''
+      this.options = []
       this.oppositeOptions = []
       this.labelOptions = []
       this.$nextTick(() => {
@@ -348,12 +349,17 @@ export default {
         if (response.status === 1) {
           const data = response.data
           _this.options = []
-          const obj = {
-            value: data.opposite[0]._id,
-            label: data.opposite[0].name
+          if (data.opposite[0]) {
+            const obj = {
+              value: data.opposite[0]._id,
+              label: data.opposite[0].name
+            }
+            this.oppositeOptions = [obj]
+            this.oppositeValue = data.opposite[0]._id
+          } else {
+            this.oppositeOptions = []
+            this.oppositeValue = ''
           }
-          this.oppositeOptions = [obj]
-          this.oppositeValue = data.opposite[0]._id
           data.label &&
             data.label.map(o => {
               _this.options.push({ value: o, label: o })
