@@ -152,7 +152,7 @@ export default {
           this.$refs['dataForm'].clearValidate()
           this.$refs['dataForm'].resetFields()
         }
-        this.temp = Object.assign({}, this.defaultForm)
+        this.temp = deepClone(this.defaultForm)
         this.showTinymce = val
       })
     },
@@ -167,7 +167,7 @@ export default {
           this.$message.error(error)
           return false
         })
-      this.temp = Object.assign({}, this.defaultForm)
+      this.temp = deepClone(this.defaultForm)
       this.dialogStatus = 'create'
       this.dialogFormVisible = true
       this.currentIndex = -1

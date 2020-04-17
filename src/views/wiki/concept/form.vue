@@ -4,7 +4,12 @@
       <el-form ref="conceptForm" :model="conceptForm" :rules="rules" label-width="140px" class="form-container">
 
         <el-form-item label="名称" prop="name">
-          <el-input v-model="conceptForm.name" :maxlength="100" name="name" required />
+          <el-input
+            v-model="conceptForm.name"
+            :maxlength="100"
+            name="name"
+            required
+            style="width:50%"/>
         </el-form-item>
 
         <el-form-item label="摘要" prop="summary">
@@ -26,7 +31,7 @@
             remote
             reserve-keyword
             placeholder="请输入关键词"
-            style="width:100%">
+            style="width:50%">
             <el-option
               v-for="item in options"
               :key="item.value"
@@ -39,31 +44,6 @@
           <el-button v-for="(o,i) in conceptForm.label" :key="i" size="small" @click="labelChange(o)">{{ o }}</el-button>
         </el-form-item> -->
 
-        <el-form-item label="双向" prop="twoway">
-          <el-select v-model="conceptForm.twoway" placeholder="是否双向词" clearable size="small" required>
-            <el-option label="是" value="1"/>
-            <el-option label="否" value="0"/>
-          </el-select>
-        </el-form-item>
-
-        <el-form-item label="反向" prop="opposite">
-          <el-select
-            v-model="oppositeValue"
-            :remote-method="remoteMethod3"
-            :loading="loading"
-            filterable
-            remote
-            reserve-keyword
-            placeholder="反向"
-            @change="oppositeChange">
-            <el-option
-              v-for="item in oppositeOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value" />
-          </el-select>
-        </el-form-item>
-
         <el-form-item label="模版">
           <el-select
             v-model="tempValue"
@@ -73,6 +53,7 @@
             remote
             reserve-keyword
             placeholder="选择后会使用新的模版"
+            style="width:50%"
             @change="tempChange">
             <el-option
               v-for="item in labelOptions"
@@ -82,7 +63,7 @@
           </el-select>
         </el-form-item>
         <el-form-item v-for="(o,i) in conceptForm.node_des" :key="i" :label="o.name">
-          <el-input v-model="o.content" />
+          <el-input v-model="o.content" style="width:50%"/>
         </el-form-item>
 
         <!-- <el-form-item label="别名(功能预留)">
@@ -124,6 +105,38 @@
           <el-card v-else class="box-card">
             新增概念时，需先保存当前概念才能添加关系
           </el-card>
+        </el-form-item>
+
+        <el-form-item label="双向" prop="twoway">
+          <el-select
+            v-model="conceptForm.twoway"
+            placeholder="是否双向词"
+            clearable
+            size="small"
+            required
+            style="width:50%">
+            <el-option label="是" value="1"/>
+            <el-option label="否" value="0"/>
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="反向" prop="opposite">
+          <el-select
+            v-model="oppositeValue"
+            :remote-method="remoteMethod3"
+            :loading="loading"
+            filterable
+            remote
+            reserve-keyword
+            placeholder="反向"
+            style="width:50%"
+            @change="oppositeChange">
+            <el-option
+              v-for="item in oppositeOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value" />
+          </el-select>
         </el-form-item>
 
       </el-form>
@@ -251,7 +264,7 @@ export default {
           this.$refs['conceptForm'].clearValidate()
           this.$refs['conceptForm'].resetFields()
         }
-        this.conceptForm = Object.assign({}, this.defaultForm)
+        this.conceptForm = deepClone(this.defaultForm)
         // console.log("showTinymce")
         this.showTinymce = val
       })
@@ -325,6 +338,7 @@ export default {
         })
       this.dialogStatus = 'create'
       this.dialogFormVisible = true
+      this.conceptForm = deepClone(this.defaultForm)
       this.currentIndex = -1
     },
     async handleUpdate(id) {
@@ -371,12 +385,16 @@ export default {
           d.imgurl = d.imgurl && d.imgurl.join(',')
           d.node_des = JSON.stringify(d.node_des)
           const obj =
-            this.oppositeOptions.find(o => o.value === this.oppositeValue) || {}
-          const sentObj = {
-            _id: obj.value,
-            name: obj.label
+            this.oppositeOptions.find(o => o.value === this.oppositeValue)
+          if (obj) {
+            const sentObj = {
+              _id: obj.value,
+              name: obj.label
+            }
+            d.opposite = JSON.stringify([sentObj])
+          } else {
+            d.opposite = '[]'
           }
-          d.opposite = JSON.stringify([sentObj])
           d.sui = '[{"name": "测试", "type": "cn"}]'
           d.id = d.id ? d.id : this.createId
           save(d)

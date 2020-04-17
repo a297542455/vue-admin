@@ -62,7 +62,7 @@
 
     <!-- 表格 -->
     <el-row :gutter="20">
-      <el-col :span="12">
+      <el-col :span="8">
         <el-table
           v-loading="listLoading"
           ref="table"
@@ -85,7 +85,7 @@
         </el-table>
       </el-col>
 
-      <el-col :span="12">
+      <el-col :span="16">
         <el-table
           v-loading="conceptlistLoading"
           :data="conceptList"
@@ -94,7 +94,7 @@
           fit
           highlight-current-row
           style="height: 75vh;overflow:auto">
-          <el-table-column label="名称">
+          <el-table-column label="名称" width="150">
             <template slot-scope="scope">
               <span>{{ scope.row.name }}</span>
             </template>
@@ -104,7 +104,7 @@
               <span>{{ scope.row.summary }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="操作" align="center" class-name="small-padding">
+          <el-table-column label="操作" align="center" class-name="small-padding" width="100">
             <template slot-scope="scope">
               <el-tooltip content="编辑" placement="top">
                 <el-button v-waves type="primary" icon="el-icon-edit-outline" circle @click="handleUpdate(scope.$index,scope.row.id)"/>
