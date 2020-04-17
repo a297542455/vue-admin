@@ -138,7 +138,7 @@
 <script>
 import ConceptSelect from './ConceptSelect'
 import Tinymce from '@/components/Tinymce'
-import { getInfo, save, getlabellist } from '@/api/wiki/concept'
+import { getInfo, save, getlabellist, getConceptlist } from '@/api/wiki/concept'
 import { getlistRelation, delRelation, saveRelation } from '@/api/wiki/relation'
 import * as labelApi from '@/api/wiki/label'
 import { getId } from '@/api/public'
@@ -273,9 +273,9 @@ export default {
     remoteMethod3(keyword) {
       if (keyword !== '') {
         this.loading = true
-        getlabellist({ keyword }).then(response => {
+        getConceptlist({ keyword }).then(response => {
           const data = response.data.data
-          this.oppositeOptions = data.map((o, i) => {
+          this.oppositeOptions = data.map(o => {
             return { value: `${o.id}`, label: `${o.name}` }
           })
           this.loading = false
@@ -364,12 +364,6 @@ export default {
     saveData() {
       this.btnLoading = true
       this.$refs['conceptForm'].validate(valid => {
-        // const obj = this.oppositeOptions.find(o => o.value === value) || {}
-        // const sentObj = {
-        //   id: obj.value,
-        //   label: obj.label
-        // }
-        // this.$set(this.conceptForm, 'opposite', JSON.stringify([sentObj]))
         if (valid) {
           const _this = this
           const d = deepClone(this.conceptForm)
