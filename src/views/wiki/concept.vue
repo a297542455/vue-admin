@@ -77,7 +77,7 @@
           style="height: 75vh;overflow:auto"
           @row-click="rowClick"
           @selection-change="handleSelectionChange">
-          <el-table-column label="姓名">
+          <el-table-column :show-overflow-tooltip="true" label="标签名">
             <template slot-scope="scope">
               <span>{{ scope.row.name }}</span>
             </template>
@@ -94,17 +94,17 @@
           fit
           highlight-current-row
           style="height: 75vh;overflow:auto">
-          <el-table-column label="名称" width="150">
+          <el-table-column :show-overflow-tooltip="true" label="名称">
             <template slot-scope="scope">
               <span>{{ scope.row.name }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="摘要">
+          <el-table-column :show-overflow-tooltip="true" label="摘要">
             <template slot-scope="scope">
               <span>{{ scope.row.summary }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="操作" align="center" class-name="small-padding" width="100">
+          <el-table-column label="操作" align="center" class-name="small-padding" width="150">
             <template slot-scope="scope">
               <el-tooltip content="编辑" placement="top">
                 <el-button v-waves type="primary" icon="el-icon-edit-outline" circle @click="handleUpdate(scope.$index,scope.row.id)"/>
