@@ -241,7 +241,7 @@ export default {
     tempChange(id) {
       getLabelInfo(id).then(response => {
         if (response.status === 1) {
-          this.conceptForm.node_des = response.data.temp
+          this.$set(this.conceptForm, 'node_des', response.data.temp)
         }
       })
     },

@@ -157,10 +157,7 @@ export default {
       const { relatePids } = temp
       // console.log(relatePids, "relatePids")
       // console.log(temp, "temp")
-      if (relatePids && !relatePids.length) {
-        this.fetchList()
-        return
-      }
+      this.fetchList()
       relatePids.map(o => {
         const obj = {
           ...this.listQuery,
